@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">JsBridge</string>
+    <string name="button_name">Java调用Web</string>
+</resources>
