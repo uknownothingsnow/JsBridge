@@ -182,6 +182,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 					try {
 						list = Message.toArrayList(data);
 					} catch (Exception e) {
+                        e.printStackTrace();
 						return;
 					}
 					if (list == null || list.size() == 0) {
