@@ -95,6 +95,8 @@ public class MainActivity extends Activity implements OnClickListener {
             }
         });
 
+        webView.send("hello");
+
 	}
 
 	public void pickFile() {
