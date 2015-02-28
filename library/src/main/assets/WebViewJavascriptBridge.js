@@ -50,7 +50,7 @@
         var receivedMessages = receiveMessageQueue;
         receiveMessageQueue = null;
         for (var i = 0; i < receivedMessages.length; i++) {
-            _dispatchMessageFromObjC(receivedMessages[i]);
+            _dispatchMessageFromNative(receivedMessages[i]);
         }
     }
 
@@ -97,7 +97,7 @@
     }
 
     //提供给native使用,
-    function _dispatchMessageFromObjC(messageJSON) {
+    function _dispatchMessageFromNative(messageJSON) {
         setTimeout(function() {
             var message = JSON.parse(messageJSON);
             var responseCallback;
@@ -138,11 +138,11 @@
     }
 
     //提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
-    function _handleMessageFromObjC(messageJSON) {
+    function _handleMessageFromNative(messageJSON) {
         if (receiveMessageQueue) {
             receiveMessageQueue.push(messageJSON);
         } else {
-            _dispatchMessageFromObjC(messageJSON);
+            _dispatchMessageFromNative(messageJSON);
         }
     }
 
@@ -152,7 +152,7 @@
         registerHandler: registerHandler,
         callHandler: callHandler,
         _fetchQueue: _fetchQueue,
-        _handleMessageFromObjC: _handleMessageFromObjC
+        _handleMessageFromNative: _handleMessageFromNative
     };
 
     var doc = document;

@@ -24,7 +24,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	private final String TAG = "BridgeWebView";
 
-	String toLoadJs = null;
+	String toLoadJs = "WebViewJavascriptBridge.js";
 	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
 	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
 	BridgeHandler defaultHandler = new DefaultHandler();
@@ -34,33 +34,30 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	public BridgeWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
+		init();
 	}
 
 	public BridgeWebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init(context);
+		init();
 	}
 
 	public BridgeWebView(Context context) {
 		super(context);
-		init(context);
+		init();
 	}
 
 	/**
 	 * 
 	 * @param handler
-	 *            默认的handler,负责处理js端没有指定handlerName的消息,若js端有指定handlerName,
-	 *            则由native端注册的指定处理
+	 *            default handler,handle messages send by js without assigned handler name,
+     *            if js message has handler name, it will be handled by named handlers registered by native
 	 */
-	public void initContext(BridgeHandler handler) {
-        this.toLoadJs = "WebViewJavascriptBridge.js";
-		if (handler != null) {
-			this.defaultHandler = handler;
-		}
+	public void setDefaultHandler(BridgeHandler handler) {
+       this.defaultHandler = handler;
 	}
 
-    private void init(Context context) {
+    private void init() {
 		this.setVerticalScrollBarEnabled(false);
 		this.setHorizontalScrollBarEnabled(false);
 		this.getSettings().setJavaScriptEnabled(true);
@@ -138,10 +135,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	@Override
 	public void send(String data, CallBackFunction responseCallback) {
-		doSend(data, responseCallback, null);
+		doSend(null, data, responseCallback);
 	}
 
-	private void doSend(String data, CallBackFunction responseCallback, String handlerName) {
+	private void doSend(String handlerName, String data, CallBackFunction responseCallback) {
 		Message m = new Message();
 		if (!TextUtils.isEmpty(data)) {
 			m.setData(data);
@@ -203,7 +200,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 							responseCallbacks.remove(responseId);
 						} else {
 							CallBackFunction responseFunction = null;
-							// 是否是callbackId
+							// if had callbackId
 							final String callbackId = m.getCallbackId();
 							if (!TextUtils.isEmpty(callbackId)) {
 								responseFunction = new CallBackFunction() {
@@ -243,7 +240,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	}
 
 	/**
-	 * 注册handler,方便web调用
+	 * register handler,so that javascript can call it
 	 * 
 	 * @param handlerName
 	 * @param handler
@@ -255,13 +252,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	}
 
 	/**
-	 * 调用web的handler
-	 * 
+	 * call javascript registered handler
+	 *
+     * @param handlerName
 	 * @param data
 	 * @param callBack
-	 * @param handlerName
 	 */
-	public void callHandler(String data, CallBackFunction callBack, String handlerName) {
-        doSend(data, callBack, handlerName);
+	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
+        doSend(handlerName, data, callBack);
 	}
 }

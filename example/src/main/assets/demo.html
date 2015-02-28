@@ -91,13 +91,13 @@
                 }
                 console.log('JS responding with', data)
                 responseCallback(data)
-            })
+            });
 
             bridge.registerHandler("functionInJs", function(data, responseCallback) {
                 document.getElementById("show").innerHTML = ("data from Java: = " + data)
                 var responseData = "Javascript Says Right back aka!"
                 responseCallback(responseData)
-            })
+            });
         })
     </script>
 

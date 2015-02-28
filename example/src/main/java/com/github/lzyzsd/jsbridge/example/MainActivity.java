@@ -50,7 +50,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		button.setOnClickListener(this);
 
-		webView.initContext(new DefaultHandler());
+		webView.setDefaultHandler(new DefaultHandler());
 
 		webView.setWebChromeClient(new WebChromeClient() {
 
@@ -88,12 +88,12 @@ public class MainActivity extends Activity implements OnClickListener {
         user.location = location;
         user.name = "Bruce";
 
-        webView.callHandler(new Gson().toJson(user), new CallBackFunction() {
+        webView.callHandler("functionInJs", new Gson().toJson(user), new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
 
             }
-        }, "functionInJs");
+        });
 
 	}
 
@@ -118,7 +118,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (button.equals(v)) {
-            webView.callHandler("data from Java", new CallBackFunction() {
+            webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
 
 				@Override
 				public void onCallBack(String data) {
@@ -126,7 +126,7 @@ public class MainActivity extends Activity implements OnClickListener {
 					Log.i(TAG, "reponse data from js " + data);
 				}
 
-			}, "functionInJs");
+			});
 		}
 
 	}
