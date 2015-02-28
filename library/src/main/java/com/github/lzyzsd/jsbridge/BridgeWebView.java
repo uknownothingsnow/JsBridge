@@ -71,9 +71,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 		String functionName = BridgeUtil.getFunctionFromReturnUrl(url);
 		CallBackFunction f = responseCallbacks.get(functionName);
 		String data = BridgeUtil.getDataFromReturnUrl(url);
-		Log.i(TAG, "handlerReturnData " + "functionName = " + functionName + " f = " + f + " data = " + data);
 		if (f != null) {
-			Log.i(TAG, "in handlerReturnData, f = " + f);
 			f.onCallBack(data);
 			responseCallbacks.remove(functionName);
 			return;

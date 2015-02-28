@@ -101,7 +101,7 @@
         setTimeout(function() {
             var message = JSON.parse(messageJSON);
             var responseCallback;
-            //回调
+            //java call finished, now need to call js callback function
             if (message.responseId) {
                 responseCallback = responseCallbacks[message.responseId];
                 if (!responseCallback) {
