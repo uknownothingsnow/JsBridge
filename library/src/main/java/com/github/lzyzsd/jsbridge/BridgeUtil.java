@@ -31,6 +31,7 @@ public class BridgeUtil {
 			return url.replace(YY_FETCHQUEUE, EMPTY_STR);
 		}
 
+		
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
 		String[] functionAndData = temp.split(SPLIT_MARK);
 		if(functionAndData.length >= 2) {
