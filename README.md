@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.lzyzsd.jsbridge:library'
+    compile 'com.github.lzyzsd.jsbridge:library:1.0.1'
 }
 ```
 
