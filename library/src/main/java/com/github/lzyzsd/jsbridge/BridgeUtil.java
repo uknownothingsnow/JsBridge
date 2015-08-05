@@ -27,15 +27,8 @@ public class BridgeUtil {
 	
 	public static String getDataFromReturnUrl(String url) {
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
-		String[] functionAndData = temp.split(SPLIT_MARK);
-		if(functionAndData != null && functionAndData.length >= 2) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 1; i < functionAndData.length; i++) {
-                sb.append(functionAndData[i]);
-            }
-            return sb.toString();
-        }
-		return null;
+		int start = temp.indexOf(SPLIT_MARK);
+		return temp.substring(start + 1);
 	}
 
 	public static String getFunctionFromReturnUrl(String url) {
