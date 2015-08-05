@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 public class BridgeUtil {
 	final static String YY_OVERRIDE_SCHEMA = "yy://";
 	final static String YY_RETURN_DATA = YY_OVERRIDE_SCHEMA + "return/";//格式为   yy://return/{function}/returncontent
+	final static String YY_FETCHQUEUE = YY_RETURN_DATA + "_fetchQueue/";
 	final static String EMPTY_STR = "";
 	final static String UNDERLINE_STR = "_";
 	final static String SPLIT_MARK = "/";
@@ -26,15 +27,27 @@ public class BridgeUtil {
 	
 	
 	public static String getDataFromReturnUrl(String url) {
+		if(url.startsWith(YY_FETCHQUEUE)) {
+			return url.replace(YY_FETCHQUEUE, EMPTY_STR);
+		}
+
+		
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
-		int start = temp.indexOf(SPLIT_MARK);
-		return temp.substring(start + 1);
+		String[] functionAndData = temp.split(SPLIT_MARK);
+		if(functionAndData.length >= 2) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i < functionAndData.length; i++) {
+                sb.append(functionAndData[i]);
+            }
+            return sb.toString();
+        }
+		return null;
 	}
 
 	public static String getFunctionFromReturnUrl(String url) {
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
 		String[] functionAndData = temp.split(SPLIT_MARK);
-		if(functionAndData != null && functionAndData.length >= 1){
+		if(functionAndData.length >= 1){
 			return functionAndData[0];
 		}
 		return null;
