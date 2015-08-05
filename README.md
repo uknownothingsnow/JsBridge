@@ -21,6 +21,21 @@ dependencies {
 }
 ```
 
+## JitPack.io
+
+I strongly recommend https://jitpack.io
+
+```groovy
+repositories {
+    // ...
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile 'com.github.lzyzsd.jsbridge:library'
+}
+```
+
 ## Use it in Java
 
 add com.github.lzyzsd.BridgeWebView to your layout, it is inherited from WebView.
