@@ -46,7 +46,7 @@
             var str2 = document.getElementById("text2").value;
 
             //send message to native
-            var data = "name=" + str1 + ",pass=" + str2;
+            var data = {id: 1, content: "this is html test <img src=\"a.png\"/> test\r\nhahaha"};
             window.WebViewJavascriptBridge.send(
                 data
                 , function(responseData) {
