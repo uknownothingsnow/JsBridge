@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 version = "1.0.0"
 
@@ -28,38 +26,6 @@ dependencies {
 def siteUrl = 'https://github.com/lzyzsd/JsBridge'
 def gitUrl = 'https://github.com/lzyzsd/JsBridge.git'
 group = "com.github.lzyzsd.jsbridge"
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                // Add your description here
-                name 'Android JsBridge, Java and JavaScript communication bridge'
-                url siteUrl
-                // Set your license
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'http://opensource.org/licenses/MIT'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'lzyzsd'
-                        name 'Bruce Lee'
-                        email 'bruceinpeking@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
@@ -78,16 +44,3 @@ artifacts {
 }
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "JsBridge"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["MIT"]
-        publish = true
-    }
-}
