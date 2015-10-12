@@ -13,14 +13,6 @@ It provides safe and convenient way to call Java code from js and call js code f
 
 ## Usage
 
-gradle
-
-```groovy
-dependencies {
-    compile 'com.github.lzyzsd.jsbridge:library:1.0.0'
-}
-```
-
 ## JitPack.io
 
 I strongly recommend https://jitpack.io
@@ -32,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.lzyzsd:jsbridge:1.0.1'
+    compile 'com.github.lzyzsd:jsbridge:1.0.2'
 }
 ```
 
