@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -24,13 +23,22 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	private final String TAG = "BridgeWebView";
 
-	String toLoadJs = "WebViewJavascriptBridge.js";
+	public static final String toLoadJs = "WebViewJavascriptBridge.js";
 	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
 	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
 	BridgeHandler defaultHandler = new DefaultHandler();
 
-	List<Message> startupMessage = new ArrayList<Message>();
-	long uniqueId = 0;
+	private List<Message> startupMessage = new ArrayList<Message>();
+
+	public List<Message> getStartupMessage() {
+		return startupMessage;
+	}
+
+	public void setStartupMessage(List<Message> startupMessage) {
+		this.startupMessage = startupMessage;
+	}
+
+	private long uniqueId = 0;
 
 	public BridgeWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -64,8 +72,12 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-		this.setWebViewClient(new BridgeWebViewClient());
+		this.setWebViewClient(generateBridgeWebViewClient());
 	}
+
+    protected BridgeWebViewClient generateBridgeWebViewClient() {
+        return new BridgeWebViewClient(this);
+    }
 
 	private void handlerReturnData(String url) {
 		String functionName = BridgeUtil.getFunctionFromReturnUrl(url);
@@ -78,7 +90,12 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 		}
 	}
 
-	class BridgeWebViewClient extends WebViewClient {
+	public static class BridgeWebViewClient extends WebViewClient {
+		private BridgeWebView webView;
+
+		public BridgeWebViewClient(BridgeWebView webView) {
+			this.webView = webView;
+		}
 
         @Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -88,10 +105,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 				e.printStackTrace();
 			}
 			if (url.startsWith(BridgeUtil.YY_RETURN_DATA)) { // 如果是返回数据
-				handlerReturnData(url);
+				webView.handlerReturnData(url);
 				return true;
 			} else if (url.startsWith(BridgeUtil.YY_OVERRIDE_SCHEMA)) { //
-				flushMessageQueue();
+				webView.flushMessageQueue();
 				return true;
 			} else {
 				return super.shouldOverrideUrlLoading(view, url);
@@ -107,16 +124,16 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
 
-			if (toLoadJs != null) {
-				BridgeUtil.webViewLoadLocalJs(view, toLoadJs);
+			if (BridgeWebView.toLoadJs != null) {
+				BridgeUtil.webViewLoadLocalJs(view, BridgeWebView.toLoadJs);
 			}
 
 			//
-			if (startupMessage != null) {
-				for (Message m : startupMessage) {
-					dispatchMessage(m);
+			if (webView.getStartupMessage() != null) {
+				for (Message m : webView.getStartupMessage()) {
+					webView.dispatchMessage(m);
 				}
-				startupMessage = null;
+				webView.setStartupMessage(null);
 			}
 		}
 
