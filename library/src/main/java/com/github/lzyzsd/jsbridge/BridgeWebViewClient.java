@@ -19,11 +19,6 @@ public class BridgeWebViewClient extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        try {
-            url = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         if (url.startsWith(BridgeUtil.YY_RETURN_DATA)) { // 如果是返回数据
             webView.handlerReturnData(url);
             return true;
