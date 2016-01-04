@@ -77,7 +77,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			@Override
 			public void handler(String data, CallBackFunction function) {
 				Log.i(TAG, "handler = submitFromWeb, data from web = " + data);
-                function.onCallBack("submitFromWeb exe, response data from Java");
+                function.onCallBack("submitFromWeb exe, response data 中文 from Java");
 			}
 
 		});
@@ -86,7 +86,7 @@ public class MainActivity extends Activity implements OnClickListener {
         Location location = new Location();
         location.address = "SDU";
         user.location = location;
-        user.name = "Bruce";
+        user.name = "大头鬼";
 
         webView.callHandler("functionInJs", new Gson().toJson(user), new CallBackFunction() {
             @Override

@@ -46,7 +46,7 @@
             var str2 = document.getElementById("text2").value;
 
             //send message to native
-            var data = {id: 1, content: "this is html test <img src=\"a.png\"/> test\r\nhahaha"};
+            var data = {id: 1, content: "这是一个图片 <img src=\"a.png\"/> test\r\nhahaha"};
             window.WebViewJavascriptBridge.send(
                 data
                 , function(responseData) {
@@ -63,7 +63,7 @@
             //call native method
             window.WebViewJavascriptBridge.callHandler(
                 'submitFromWeb'
-                , {'param': str1}
+                , {'param': '中文测试'}
                 , function(responseData) {
                     document.getElementById("show").innerHTML = "send get responseData from java, data = " + responseData
                 }
@@ -92,7 +92,7 @@
             bridge.init(function(message, responseCallback) {
                 console.log('JS got a message', message);
                 var data = {
-                    'Javascript Responds': 'Wee!'
+                    'Javascript Responds': '测试中文!'
                 };
                 console.log('JS responding with', data);
                 responseCallback(data);
