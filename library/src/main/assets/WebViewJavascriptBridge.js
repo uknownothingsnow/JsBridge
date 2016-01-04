@@ -129,7 +129,7 @@
             return messageQueueString;
             //android can't read directly the return data, so we can reload iframe src to communicate with java
         } else if (isAndroid()) {
-            messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + base64encode(messageQueueString);
+            messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
         }
     }
 
