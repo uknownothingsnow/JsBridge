@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.lzyzsd:jsbridge:1.0.3'
+    compile 'com.github.lzyzsd:jsbridge:1.0.4'
 }
 ```
 
