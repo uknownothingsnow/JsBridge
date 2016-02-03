@@ -23,8 +23,11 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+//dependencies {
+//   compile 'com.github.lzyzsd:jsbridge:1.0.4'
+//}
 dependencies {
-    compile 'com.github.lzyzsd:jsbridge:1.0.4'
+    compile 'com.github.Aarthas:JsBridge:1.1'
 }
 ```
 
