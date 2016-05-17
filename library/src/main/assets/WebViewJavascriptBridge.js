@@ -23,24 +23,6 @@
         doc.documentElement.appendChild(messagingIframe);
     }
 
-    function isAndroid() {
-        var ua = navigator.userAgent.toLowerCase();
-        var isA = ua.indexOf("android") > -1;
-        if (isA) {
-            return true;
-        }
-        return false;
-    }
-
-    function isIphone() {
-        var ua = navigator.userAgent.toLowerCase();
-        var isIph = ua.indexOf("iphone") > -1;
-        if (isIph) {
-            return true;
-        }
-        return false;
-    }
-
     //set default messageHandler
     function init(messageHandler) {
         if (WebViewJavascriptBridge._messageHandler) {
@@ -87,13 +69,8 @@
     function _fetchQueue() {
         var messageQueueString = JSON.stringify(sendMessageQueue);
         sendMessageQueue = [];
-        //add by hq
-        if (isIphone()) {
-            return messageQueueString;
-            //android can't read directly the return data, so we can reload iframe src to communicate with java
-        } else if (isAndroid()) {
-            messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
-        }
+        //android can't read directly the return data, so we can reload iframe src to communicate with java
+        messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
     }
 
     //提供给native使用,
