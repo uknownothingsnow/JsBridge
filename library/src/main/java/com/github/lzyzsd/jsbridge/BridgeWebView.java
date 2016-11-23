@@ -2,17 +2,13 @@ package com.github.lzyzsd.jsbridge;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +25,9 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	BridgeHandler defaultHandler = new DefaultHandler();
 
 	private List<Message> startupMessage = new ArrayList<Message>();
-
+	/** add  by arthas statr @20160203**/
+	private BridgeWebViewClient client;
+	/** add  by arthas end @20160203**/
 	public List<Message> getStartupMessage() {
 		return startupMessage;
 	}
@@ -72,11 +70,18 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-		this.setWebViewClient(generateBridgeWebViewClient());
+
+
+//		this.setWebViewClient(generateBridgeWebViewClient());
+	    /** add  by arthas statr @20160203**/
+	    client = generateBridgeWebViewClient();
+	    this.setWebViewClient(client);
+
+	    /** add  by arthas end @20160203**/
 	}
 
     protected BridgeWebViewClient generateBridgeWebViewClient() {
-        return new BridgeWebViewClient(this);
+	    return new BridgeWebViewClient(this);
     }
 
 	void handlerReturnData(String url) {
@@ -137,59 +142,76 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	void flushMessageQueue() {
 		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-			loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new CallBackFunction() {
+			loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new CallBackFunction()
+			{
 
 				@Override
-				public void onCallBack(String data) {
+				public void onCallBack(String data)
+				{
 					// deserializeMessage
 					List<Message> list = null;
-					try {
+					try
+					{
 						list = Message.toArrayList(data);
-					} catch (Exception e) {
-                        e.printStackTrace();
+					} catch (Exception e)
+					{
+						e.printStackTrace();
 						return;
 					}
-					if (list == null || list.size() == 0) {
+					if (list == null || list.size() == 0)
+					{
 						return;
 					}
-					for (int i = 0; i < list.size(); i++) {
+					for (int i = 0; i < list.size(); i++)
+					{
 						Message m = list.get(i);
 						String responseId = m.getResponseId();
 						// 是否是response
-						if (!TextUtils.isEmpty(responseId)) {
+						if (!TextUtils.isEmpty(responseId))
+						{
 							CallBackFunction function = responseCallbacks.get(responseId);
 							String responseData = m.getResponseData();
 							function.onCallBack(responseData);
 							responseCallbacks.remove(responseId);
-						} else {
+						} else
+						{
 							CallBackFunction responseFunction = null;
 							// if had callbackId
 							final String callbackId = m.getCallbackId();
-							if (!TextUtils.isEmpty(callbackId)) {
-								responseFunction = new CallBackFunction() {
+							if (!TextUtils.isEmpty(callbackId))
+							{
+								responseFunction = new CallBackFunction()
+								{
 									@Override
-									public void onCallBack(String data) {
+									public void onCallBack(String data)
+									{
 										Message responseMsg = new Message();
 										responseMsg.setResponseId(callbackId);
 										responseMsg.setResponseData(data);
 										queueMessage(responseMsg);
 									}
 								};
-							} else {
-								responseFunction = new CallBackFunction() {
+							} else
+							{
+								responseFunction = new CallBackFunction()
+								{
 									@Override
-									public void onCallBack(String data) {
+									public void onCallBack(String data)
+									{
 										// do nothing
 									}
 								};
 							}
 							BridgeHandler handler;
-							if (!TextUtils.isEmpty(m.getHandlerName())) {
+							if (!TextUtils.isEmpty(m.getHandlerName()))
+							{
 								handler = messageHandlers.get(m.getHandlerName());
-							} else {
+							} else
+							{
 								handler = defaultHandler;
 							}
-							if (handler != null){
+							if (handler != null)
+							{
 								handler.handler(m.getData(), responseFunction);
 							}
 						}
@@ -226,4 +248,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
         doSend(handlerName, data, callBack);
 	}
+
+	/** add  by arthas statr @20160203**/
+	public BridgeWebViewClient getClient()
+	{
+		return client;
+	}
+	/** add  by arthas end @20160203**/
 }

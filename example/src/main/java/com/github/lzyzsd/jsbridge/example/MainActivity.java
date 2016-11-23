@@ -9,12 +9,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.BridgeWebView;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.github.lzyzsd.jsbridge.DefaultHandler;
+import com.github.lzyzsd.jsbridge.OverrideUrlLoading;
 import com.google.gson.Gson;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -97,6 +100,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
         webView.send("hello");
 
+		webView.getClient().setOverrideUrlLoading(new OverrideUrlLoading()
+		{
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url)
+			{
+				Log.d(TAG,url);
+				if (url.startsWith("https://github.com"))
+				{
+					// do sth
+					//if return true,  can jump to native ui
+					Toast.makeText(getApplicationContext()," yes ,is github",0).show();
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	public void pickFile() {

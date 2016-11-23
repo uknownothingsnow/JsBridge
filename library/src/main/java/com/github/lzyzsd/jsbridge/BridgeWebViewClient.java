@@ -1,6 +1,8 @@
 package com.github.lzyzsd.jsbridge;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -31,10 +33,38 @@ public class BridgeWebViewClient extends WebViewClient {
         } else if (url.startsWith(BridgeUtil.YY_OVERRIDE_SCHEMA)) { //
             webView.flushMessageQueue();
             return true;
-        } else {
-            return super.shouldOverrideUrlLoading(view, url);
         }
+//        else {
+//            return super.shouldOverrideUrlLoading(view, url);
+//        }
+        /** add  by arthas statr @20160203**/
+        else if (url.startsWith("tel:"))
+        {
+            String tel = url.substring(4);
+            Intent telIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + tel));
+            webView.getContext().startActivity(telIntent);
+            return true;
+        } else
+        {
+            if (overrideUrlLoading == null)
+            {
+                return super.shouldOverrideUrlLoading(view, url);
+            } else
+            {
+                return overrideUrlLoading.shouldOverrideUrlLoading(view, url);
+            }
+        }
+        /** add  by arthas end @20160203**/
     }
+    /** add  by arthas statr @20160203**/
+    OverrideUrlLoading overrideUrlLoading;
+
+    public void setOverrideUrlLoading(OverrideUrlLoading overrideUrlLoading)
+    {
+        this.overrideUrlLoading = overrideUrlLoading;
+    }
+    /** add  by arthas end @20160203**/
+
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
