@@ -117,11 +117,11 @@
     //提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
     function _handleMessageFromNative(messageJSON) {
         console.log(messageJSON);
-        if (receiveMessageQueue && receiveMessageQueue.length > 0) {
+        if (receiveMessageQueue) {
             receiveMessageQueue.push(messageJSON);
-        } else {
-            _dispatchMessageFromNative(messageJSON);
         }
+        _dispatchMessageFromNative(messageJSON);
+       
     }
 
     var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
