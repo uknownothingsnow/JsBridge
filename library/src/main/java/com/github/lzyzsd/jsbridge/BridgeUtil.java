@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 
 public class BridgeUtil {
 	final static String YY_OVERRIDE_SCHEMA = "yy://";
-	final static String YY_RETURN_DATA = YY_OVERRIDE_SCHEMA + "return/";//格式为   yy://return/{function}/returncontent
+	final static String YY_RETURN_DATA = YY_OVERRIDE_SCHEMA + "return/";//format   yy://return/{function}/returncontent
 	final static String YY_FETCH_QUEUE = YY_RETURN_DATA + "_fetchQueue/";
 	final static String EMPTY_STR = "";
 	final static String UNDERLINE_STR = "_";
