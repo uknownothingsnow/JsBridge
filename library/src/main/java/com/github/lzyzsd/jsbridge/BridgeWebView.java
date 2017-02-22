@@ -22,6 +22,7 @@ import java.util.Map;
 public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	private final String TAG = "BridgeWebView";
+	private BridgeWebViewClient client;
 
 	public static final String toLoadJs = "WebViewJavascriptBridge.js";
 	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
@@ -65,7 +66,19 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
        this.defaultHandler = handler;
 	}
 
-    private void init() {
+	@Override
+	public void setWebViewClient(WebViewClient client) {
+		super.setWebViewClient(client);
+		if(client instanceof BridgeWebViewClient){
+			this.client = (BridgeWebViewClient)client;
+		}
+	}
+
+	public BridgeWebViewClient getBridgeWebViewClient(){
+		return client;
+	}
+
+	private void init() {
 		this.setVerticalScrollBarEnabled(false);
 		this.setHorizontalScrollBarEnabled(false);
 		this.getSettings().setJavaScriptEnabled(true);
