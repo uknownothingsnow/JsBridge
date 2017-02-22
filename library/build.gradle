@@ -1,5 +1,9 @@
 apply plugin: 'com.android.library'
 
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.ziv-zh'
+
 version = "1.0.0"
 
 android {
@@ -23,8 +27,8 @@ android {
 dependencies {
 }
 
-def siteUrl = 'https://github.com/lzyzsd/JsBridge'
-def gitUrl = 'https://github.com/lzyzsd/JsBridge.git'
+def siteUrl = 'https://github.com/ziv-zh/JsBridge'
+def gitUrl = 'https://github.com/ziv-zh/JsBridge.git'
 group = "com.github.lzyzsd.jsbridge"
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
