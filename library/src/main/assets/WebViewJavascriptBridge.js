@@ -10,7 +10,7 @@
 
     var messagingIframe;
     var sendMessageQueue = [];
-    var receiveMessageQueue = [];
+    var unhandledMessageQueue = [];
 
 
     var messageHandlers = {};
@@ -33,8 +33,8 @@
         }
 
         WebViewJavascriptBridge._messageHandler = messageHandler;
-        var receivedMessages = receiveMessageQueue;
-        receiveMessageQueue = null;
+        var receivedMessages = unhandledMessageQueue;
+        unhandledMessageQueue = [];
         for (var i = 0; i < receivedMessages.length; i++) {
             _dispatchMessageFromNative(receivedMessages[i]);
         }
@@ -108,26 +108,27 @@
                 if (message.handlerName) {
                     handler = messageHandlers[message.handlerName];
                 }
-                //查找指定handler
-                try {
-                    handler(message.data, responseCallback);
-                } catch (exception) {
-                    if (typeof console != 'undefined') {
-                        console.log("WebViewJavascriptBridge: WARNING: javascript handler threw.", message, exception);
+                if(handler){
+                    try {
+                        handler(message.data, responseCallback);
+                    } catch (exception) {
+                        if (typeof console != 'undefined') {
+                            console.log("WebViewJavascriptBridge: WARNING: javascript handler threw.", message, exception);
+                        }
                     }
+                } else {
+                    unhandledMessageQueue.push(message)
                 }
             }
         });
     }
 
-    //提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
+
     function _handleMessageFromNative(messageJSON) {
         console.log(messageJSON);
-        if (receiveMessageQueue && receiveMessageQueue.length > 0) {
-            receiveMessageQueue.push(messageJSON);
-        } else {
-            _dispatchMessageFromNative(messageJSON);
-        }
+
+        _dispatchMessageFromNative(messageJSON);
+
     }
 
     var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
