@@ -1,6 +1,8 @@
 //notation: js file can only use this kind of comments
 //since comments will cause error when use in webview.loadurl,
 //comments will be remove by java use regexp
+
+//since the final js would be an ONE-LINE string, every single statement MUST BE ended with a semicolon ';' .
 (function() {
     if (window.WebViewJavascriptBridge) {
         return;
@@ -9,13 +11,14 @@
     var messagingIframe;
     var sendMessageQueue = [];
     var receiveMessageQueue = [];
+
+
     var messageHandlers = {};
+    var responseCallbacks = {};
+    var uniqueId = 1;
 
     var CUSTOM_PROTOCOL_SCHEME = 'yy';
     var QUEUE_HAS_MESSAGE = '__QUEUE_MESSAGE__/';
-
-    var responseCallbacks = {};
-    var uniqueId = 1;
 
     function _createQueueReadyIframe(doc) {
         messagingIframe = doc.createElement('iframe');
@@ -28,6 +31,7 @@
         if (WebViewJavascriptBridge._messageHandler) {
             throw new Error('WebViewJavascriptBridge.init called twice');
         }
+
         WebViewJavascriptBridge._messageHandler = messageHandler;
         var receivedMessages = receiveMessageQueue;
         receiveMessageQueue = null;
@@ -57,10 +61,11 @@
     function _doSend(message, responseCallback) {
         if (responseCallback) {
             var callbackId = 'cb_' + (uniqueId++) + '_' + new Date().getTime();
+            console.log('callbackid:' , callbackId);
             responseCallbacks[callbackId] = responseCallback;
             message.callbackId = callbackId;
         }
-
+        console.log(message);
         sendMessageQueue.push(message);
         messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://' + QUEUE_HAS_MESSAGE;
     }
@@ -82,6 +87,7 @@
             if (message.responseId) {
                 responseCallback = responseCallbacks[message.responseId];
                 if (!responseCallback) {
+                    console.log('did not find responseCallback for ', message.responseId);
                     return;
                 }
                 responseCallback(message.responseData);
