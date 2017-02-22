@@ -23,8 +23,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	BridgeWebView webView;
 
-	View button;
-	View loadJs;
+	Button button;
 
 	int RESULT_CODE = 0;
 
@@ -48,10 +47,8 @@ public class MainActivity extends Activity implements OnClickListener {
         webView = (BridgeWebView) findViewById(R.id.webView);
 
 		button = (Button) findViewById(R.id.button);
-		loadJs = findViewById(R.id.loadjs);
 
 		button.setOnClickListener(this);
-		loadJs.setOnClickListener(this);
 
 		webView.setDefaultHandler(new DefaultHandler());
 
@@ -122,21 +119,18 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()){
-			case R.id.button:
-				webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
+		if (button.equals(v)) {
+            webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
 
-					@Override
-					public void onCallBack(String data) {
-						// TODO Auto-generated method stub
-						Log.i(TAG, "reponse data from js " + data);
-					}
+				@Override
+				public void onCallBack(String data) {
+					// TODO Auto-generated method stub
+					Log.i(TAG, "reponse data from js " + data);
+				}
 
-				});
-				break;
-			case R.id.loadjs:
-				webView.loadBridgeJs();
+			});
 		}
+
 	}
 
 }
