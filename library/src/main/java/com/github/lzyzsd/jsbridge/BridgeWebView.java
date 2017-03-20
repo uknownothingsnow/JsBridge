@@ -9,17 +9,16 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import com.github.lzyzsd.jsbridge.interfaces.OnPageCallBack;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
+public class BridgeWebView extends WebView implements WebViewJavascriptBridge,OnPageCallBack {
 
 	private final String TAG = "BridgeWebView";
 
@@ -225,5 +224,21 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	 */
 	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
         doSend(handlerName, data, callBack);
+	}
+
+
+	@Override
+	public void pageStartedInvoke(WebView view, String url, Bitmap favicon) {
+
+	}
+
+	@Override
+	public void pageFinishedInvoke(WebView view, String url) {
+
+	}
+
+	@Override
+	public void pageReceivedErrorInvoke(WebView view, int errorCode, String description, String failingUrl) {
+
 	}
 }
