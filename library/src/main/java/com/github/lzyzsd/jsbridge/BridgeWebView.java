@@ -3,11 +3,13 @@ package com.github.lzyzsd.jsbridge;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 
 import com.github.lzyzsd.jsbridge.interfaces.OnPageCallBack;
@@ -239,6 +241,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge,On
 
 	@Override
 	public void pageReceivedErrorInvoke(WebView view, int errorCode, String description, String failingUrl) {
+
+	}
+
+	@Override
+	public void pageReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
 
 	}
 }

@@ -1,6 +1,8 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
+import android.net.http.SslError;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -65,5 +67,11 @@ public class BridgeWebViewClient extends WebViewClient {
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
         webView.pageReceivedErrorInvoke(view, errorCode, description, failingUrl);
+    }
+
+    @Override
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+//        super.onReceivedSslError(view, handler, error);
+        webView.pageReceivedSslError(view, handler, error);
     }
 }
