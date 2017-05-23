@@ -215,6 +215,17 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 			messageHandlers.put(handlerName, handler);
 		}
 	}
+	
+	/**
+	 * unregister handler
+	 * 
+	 * @param handlerName
+	 */
+	public void unregisterHandler(String handlerName) {
+		if (handlerName != null) {
+			messageHandlers.remove(handlerName);
+		}
+	}
 
 	/**
 	 * call javascript registered handler
