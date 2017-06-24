@@ -1,6 +1,8 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
+import android.os.Build;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -34,6 +36,32 @@ public class BridgeWebViewClient extends WebViewClient {
         } else {
             return super.shouldOverrideUrlLoading(view, url);
         }
+    }
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
+    {
+        if (Build.VERSION.SDK_INT >= 24){
+            String url = "";
+            try{
+                url = URLDecoder.decode(request.getUrl().toString(), "UTF-8");
+            } catch (UnsupportedEncodingException e){
+                e.printStackTrace();
+            }
+
+            if (url.startsWith(BridgeUtil.YY_RETURN_DATA)){ // 如果是返回数据
+                webView.handlerReturnData(url);
+                return true;
+            }
+            else if (url.startsWith(BridgeUtil.YY_OVERRIDE_SCHEMA)){
+                webView.flushMessageQueue();
+                return true;
+            }else{
+                return super.shouldOverrideUrlLoading(view, request);
+            }
+        }
+        else
+            return super.shouldOverrideUrlLoading(view, request);
     }
 
     @Override
