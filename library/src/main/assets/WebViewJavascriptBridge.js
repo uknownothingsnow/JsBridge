@@ -17,13 +17,14 @@
     var responseCallbacks = {};
     var uniqueId = 1;
 
+    // 创建队列iframe
     function _createQueueReadyIframe(doc) {
         messagingIframe = doc.createElement('iframe');
         messagingIframe.style.display = 'none';
         doc.documentElement.appendChild(messagingIframe);
     }
 
-    //set default messageHandler
+    //set default messageHandler  初始化默认的消息线程
     function init(messageHandler) {
         if (WebViewJavascriptBridge._messageHandler) {
             throw new Error('WebViewJavascriptBridge.init called twice');
@@ -36,16 +37,18 @@
         }
     }
 
+    // 发送
     function send(data, responseCallback) {
         _doSend({
             data: data
         }, responseCallback);
     }
 
+    // 注册线程 往数组里面添加值
     function registerHandler(handlerName, handler) {
         messageHandlers[handlerName] = handler;
     }
-
+    // 调用线程
     function callHandler(handlerName, data, responseCallback) {
         _doSend({
             handlerName: handlerName,
