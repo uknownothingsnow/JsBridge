@@ -1,11 +1,13 @@
 package com.github.lzyzsd.jsbridge;
 
+import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONTokener;
 
 /**
  * data of bridge
@@ -63,6 +65,12 @@ public class Message {
             jsonObject.put(CALLBACK_ID_STR, getCallbackId());
             jsonObject.put(DATA_STR, getData());
             jsonObject.put(HANDLER_NAME_STR, getHandlerName());
+            String data = getResponseData();
+            if (TextUtils.isEmpty(data)) {
+              jsonObject.put(RESPONSE_DATA_STR, data);
+            } else {
+              jsonObject.put(RESPONSE_DATA_STR, new JSONTokener(data).nextValue());
+            }
             jsonObject.put(RESPONSE_DATA_STR, getResponseData());
             jsonObject.put(RESPONSE_ID_STR, getResponseId());
             return jsonObject.toString();
