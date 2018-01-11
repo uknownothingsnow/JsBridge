@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Button;
 
 import com.github.lzyzsd.jsbridge.BridgeHandler;
@@ -28,6 +29,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	int RESULT_CODE = 0;
 
 	ValueCallback<Uri> mUploadMessage;
+
+	ValueCallback<Uri[]> mUploadMessageArray;
 
     static class Location {
         String address;
@@ -67,6 +70,13 @@ public class MainActivity extends Activity implements OnClickListener {
 			public void openFileChooser(ValueCallback<Uri> uploadMsg) {
 				mUploadMessage = uploadMsg;
 				pickFile();
+			}
+
+			@Override
+			public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+				mUploadMessageArray = filePathCallback;
+				pickFile();
+				return true;
 			}
 		});
 
@@ -108,12 +118,21 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == RESULT_CODE) {
-			if (null == mUploadMessage){
+			if (null == mUploadMessage && null == mUploadMessageArray){
 				return;
 			}
-			Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
-			mUploadMessage.onReceiveValue(result);
-			mUploadMessage = null;
+			if(null!= mUploadMessage && null == mUploadMessageArray){
+				Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+				mUploadMessage.onReceiveValue(result);
+				mUploadMessage = null;
+			}
+
+			if(null == mUploadMessage && null != mUploadMessageArray){
+				Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+				mUploadMessageArray.onReceiveValue(new Uri[]{result});
+				mUploadMessageArray = null;
+			}
+
 		}
 	}
 
