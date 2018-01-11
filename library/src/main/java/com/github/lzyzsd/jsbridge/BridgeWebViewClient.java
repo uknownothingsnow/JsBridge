@@ -68,7 +68,6 @@ public class BridgeWebViewClient extends WebViewClient {
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
-        webView.pageStartedInvoke(view, url, favicon);
     }
 
     @Override
@@ -87,7 +86,6 @@ public class BridgeWebViewClient extends WebViewClient {
             webView.setStartupMessage(null);
         }
 
-        webView.pageFinishedInvoke(view, url);
     }
 
 }
