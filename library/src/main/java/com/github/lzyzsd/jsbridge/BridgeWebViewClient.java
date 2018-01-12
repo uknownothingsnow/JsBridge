@@ -1,6 +1,7 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
+
 import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -84,5 +85,7 @@ public class BridgeWebViewClient extends WebViewClient {
             }
             webView.setStartupMessage(null);
         }
+
     }
+
 }
