@@ -129,6 +129,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         //escape special characters for json string
         messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
         messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
+		messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
             this.loadUrl(javascriptCommand);
