@@ -7,6 +7,7 @@
     }
 
     var messagingIframe;
+    var bizMessagingIframe;
     var sendMessageQueue = [];
     var receiveMessageQueue = [];
     var messageHandlers = {};
@@ -17,13 +18,19 @@
     var responseCallbacks = {};
     var uniqueId = 1;
 
+    // 创建消息index队列iframe
     function _createQueueReadyIframe(doc) {
         messagingIframe = doc.createElement('iframe');
         messagingIframe.style.display = 'none';
         doc.documentElement.appendChild(messagingIframe);
     }
-
-    //set default messageHandler
+    //创建消息体队列iframe
+    function _createQueueReadyIframe4biz(doc) {
+        bizMessagingIframe = doc.createElement('iframe');
+        bizMessagingIframe.style.display = 'none';
+        doc.documentElement.appendChild(bizMessagingIframe);
+    }
+    //set default messageHandler  初始化默认的消息线程
     function init(messageHandler) {
         if (WebViewJavascriptBridge._messageHandler) {
             throw new Error('WebViewJavascriptBridge.init called twice');
@@ -36,16 +43,18 @@
         }
     }
 
+    // 发送
     function send(data, responseCallback) {
         _doSend({
             data: data
         }, responseCallback);
     }
 
+    // 注册线程 往数组里面添加值
     function registerHandler(handlerName, handler) {
         messageHandlers[handlerName] = handler;
     }
-
+    // 调用线程
     function callHandler(handlerName, data, responseCallback) {
         _doSend({
             handlerName: handlerName,
@@ -70,7 +79,7 @@
         var messageQueueString = JSON.stringify(sendMessageQueue);
         sendMessageQueue = [];
         //android can't read directly the return data, so we can reload iframe src to communicate with java
-        messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
+        bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
     }
 
     //提供给native使用,
@@ -119,9 +128,9 @@
         console.log(messageJSON);
         if (receiveMessageQueue) {
             receiveMessageQueue.push(messageJSON);
-        } else {
-            _dispatchMessageFromNative(messageJSON);
         }
+        _dispatchMessageFromNative(messageJSON);
+       
     }
 
     var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
@@ -135,6 +144,7 @@
 
     var doc = document;
     _createQueueReadyIframe(doc);
+    _createQueueReadyIframe4biz(doc);
     var readyEvent = doc.createEvent('Events');
     readyEvent.initEvent('WebViewJavascriptBridgeReady');
     readyEvent.bridge = WebViewJavascriptBridge;

@@ -1,7 +1,6 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.content.Context;
-import android.util.Base64;
 import android.webkit.WebView;
 
 import java.io.BufferedReader;
@@ -21,34 +20,43 @@ public class BridgeUtil {
 	final static String JS_HANDLE_MESSAGE_FROM_JAVA = "javascript:WebViewJavascriptBridge._handleMessageFromNative('%s');";
 	final static String JS_FETCH_QUEUE_FROM_JAVA = "javascript:WebViewJavascriptBridge._fetchQueue();";
 	public final static String JAVASCRIPT_STR = "javascript:";
-	
+
+	// 例子 javascript:WebViewJavascriptBridge._fetchQueue(); --> _fetchQueue
 	public static String parseFunctionName(String jsUrl){
 		return jsUrl.replace("javascript:WebViewJavascriptBridge.", "").replaceAll("\\(.*\\);", "");
 	}
-	
-	
+
+	// 获取到传递信息的body值
+	// url = yy://return/_fetchQueue/[{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
 	public static String getDataFromReturnUrl(String url) {
 		if(url.startsWith(YY_FETCH_QUEUE)) {
+			// return = [{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
 			return url.replace(YY_FETCH_QUEUE, EMPTY_STR);
 		}
-		
+
+		// temp = _fetchQueue/[{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
 		String[] functionAndData = temp.split(SPLIT_MARK);
 
-        if(functionAndData.length >= 2) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 1; i < functionAndData.length; i++) {
-                sb.append(functionAndData[i]);
-            }
-            return sb.toString();
-        }
+		if(functionAndData.length >= 2) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 1; i < functionAndData.length; i++) {
+				sb.append(functionAndData[i]);
+			}
+			// return = [{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
+			return sb.toString();
+		}
 		return null;
 	}
 
+	// 获取到传递信息的方法
+	// url = yy://return/_fetchQueue/[{"responseId":"JAVA_CB_1_360","responseData":"Javascript Says Right back aka!"}]
 	public static String getFunctionFromReturnUrl(String url) {
+		// temp = _fetchQueue/[{"responseId":"JAVA_CB_1_360","responseData":"Javascript Says Right back aka!"}]
 		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
 		String[] functionAndData = temp.split(SPLIT_MARK);
 		if(functionAndData.length >= 1){
+			// functionAndData[0] = _fetchQueue
 			return functionAndData[0];
 		}
 		return null;
@@ -58,8 +66,8 @@ public class BridgeUtil {
 	
 	/**
 	 * js 文件将注入为第一个script引用
-	 * @param view
-	 * @param url
+	 * @param view WebView
+	 * @param url url
 	 */
 	public static void webViewLoadJs(WebView view, String url){
 		String js = "var newscript = document.createElement(\"script\");";
@@ -68,11 +76,22 @@ public class BridgeUtil {
 		view.loadUrl("javascript:" + js);
 	}
 
+	/**
+	 * 这里只是加载lib包中assets中的 WebViewJavascriptBridge.js
+	 * @param view webview
+	 * @param path 路径
+	 */
     public static void webViewLoadLocalJs(WebView view, String path){
         String jsContent = assetFile2Str(view.getContext(), path);
         view.loadUrl("javascript:" + jsContent);
     }
-	
+
+	/**
+	 * 解析assets文件夹里面的代码,去除注释,取可执行的代码
+	 * @param c context
+	 * @param urlStr 路径
+	 * @return 可执行代码
+	 */
 	public static String assetFile2Str(Context c, String urlStr){
 		InputStream in = null;
 		try{
@@ -82,7 +101,7 @@ public class BridgeUtil {
             StringBuilder sb = new StringBuilder();
             do {
                 line = bufferedReader.readLine();
-                if (line != null && !line.matches("^\\s*\\/\\/.*")) {
+                if (line != null && !line.matches("^\\s*\\/\\/.*")) { // 去除注释
                     sb.append(line);
                 }
             } while (line != null);
