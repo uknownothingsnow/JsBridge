@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.WebView;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -141,9 +143,8 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	void dispatchMessage(Message m) {
         String messageJson = m.toJson();
         //escape special characters for json string  为json字符串转义特殊字符
-        messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
-        messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
-		messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
+		// 系统原生 API 做 Json转义，没必要自己正则替换，而且替换不一定完整
+        messageJson = JSONObject.quote(messageJson);
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
