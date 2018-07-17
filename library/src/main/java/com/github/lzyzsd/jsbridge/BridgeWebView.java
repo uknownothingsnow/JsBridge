@@ -7,7 +7,9 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,14 +70,20 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-		this.setWebViewClient(generateBridgeWebViewClient());
 	}
 
-    protected BridgeWebViewClient generateBridgeWebViewClient() {
-        return new BridgeWebViewClient(this);
-    }
 
-    /**
+	@Override
+	public void setWebViewClient(WebViewClient client) {
+		this.setWebViewClient(new BridgeWebViewClient(this, client));
+	}
+
+	@Override
+	public void setWebChromeClient(WebChromeClient client) {
+		super.setWebChromeClient(new BridgeWebChromeClient(client));
+	}
+
+	/**
      * 获取到CallBackFunction data执行调用并且从数据集移除
      * @param url
      */
