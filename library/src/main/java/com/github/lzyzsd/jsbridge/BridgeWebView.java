@@ -70,12 +70,14 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+        setWebViewClient(null);
+        setWebChromeClient(null);
 	}
 
 
 	@Override
 	public void setWebViewClient(WebViewClient client) {
-		this.setWebViewClient(new BridgeWebViewClient(this, client));
+		super.setWebViewClient(new BridgeWebViewClient(this, client));
 	}
 
 	@Override
