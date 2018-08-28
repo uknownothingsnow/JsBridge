@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         webView.callHandler("functionInJs", new Gson().toJson(user), new CallBackFunction() {
             @Override
-            public void onCallBack(String data) {
+            public void onCallBack(Object data) {
 
             }
         });
@@ -123,7 +123,7 @@ public class MainActivity extends Activity implements OnClickListener {
             webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
 
 				@Override
-				public void onCallBack(String data) {
+				public void onCallBack(Object data) {
 					// TODO Auto-generated method stub
 					Log.i(TAG, "reponse data from js " + data);
 				}
