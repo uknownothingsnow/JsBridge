@@ -1,7 +1,10 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
+
+import android.net.http.SslError;
 import android.os.Build;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,7 +38,7 @@ public class BridgeWebViewClient extends WebViewClient {
             webView.flushMessageQueue();
             return true;
         } else {
-            return super.shouldOverrideUrlLoading(view, url);
+            return this.onCustomShouldOverrideUrlLoading(url)?true:super.shouldOverrideUrlLoading(view, url);
         }
     }
 
@@ -57,7 +60,7 @@ public class BridgeWebViewClient extends WebViewClient {
                 webView.flushMessageQueue();
                 return true;
             } else {
-                return super.shouldOverrideUrlLoading(view, request);
+                return this.onCustomShouldOverrideUrlLoading(url)?true:super.shouldOverrideUrlLoading(view, request);
             }
         }else {
             return super.shouldOverrideUrlLoading(view, request);
@@ -84,5 +87,23 @@ public class BridgeWebViewClient extends WebViewClient {
             }
             webView.setStartupMessage(null);
         }
+
+        //
+        onCustomPageFinishd(view,url);
+
     }
+
+
+    protected boolean onCustomShouldOverrideUrlLoading(String url) {
+        return false;
+    }
+
+
+    protected void onCustomPageFinishd(WebView view, String url){
+
+    }
+
+
+
+
 }

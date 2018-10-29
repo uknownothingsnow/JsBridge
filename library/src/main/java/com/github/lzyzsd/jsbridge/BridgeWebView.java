@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import java.net.URLEncoder;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
+public class BridgeWebView extends WebView implements WebViewJavascriptBridge{
 
 	private final String TAG = "BridgeWebView";
 
@@ -264,4 +265,5 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
         doSend(handlerName, data, callBack);
 	}
+
 }
