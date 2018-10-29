@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.WebView;
+import java.net.URLEncoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,6 +145,9 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
         messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
         messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
 		messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
+		messageJson = messageJson.replaceAll("%7B", URLEncoder.encode("%7B"));
+		messageJson = messageJson.replaceAll("%7D", URLEncoder.encode("%7D"));
+		messageJson = messageJson.replaceAll("%22", URLEncoder.encode("%22"));
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
@@ -238,10 +242,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 			messageHandlers.put(handlerName, handler);
 		}
 	}
-	
+
 	/**
 	 * unregister handler
-	 * 
+	 *
 	 * @param handlerName
 	 */
 	public void unregisterHandler(String handlerName) {

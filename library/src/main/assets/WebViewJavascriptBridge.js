@@ -79,7 +79,9 @@
         var messageQueueString = JSON.stringify(sendMessageQueue);
         sendMessageQueue = [];
         //android can't read directly the return data, so we can reload iframe src to communicate with java
-        bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
+        if (messageQueueString !== '[]') {
+            bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
+        }
     }
 
     //提供给native使用,
