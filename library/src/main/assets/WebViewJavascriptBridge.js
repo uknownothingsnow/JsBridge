@@ -20,6 +20,7 @@
 
     var lastCallTime = 0;
     var stoId = null;
+    var FETCH_QUEUE_INTERVAL = 20;
 
     // 创建消息index队列iframe
     function _createQueueReadyIframe(doc) {
@@ -85,9 +86,9 @@
         }
 
         // _fetchQueue 的调用间隔过短，延迟调用
-        if (new Date().getTime() - lastCallTime < 20) {
+        if (new Date().getTime() - lastCallTime < FETCH_QUEUE_INTERVAL) {
           if (!stoId) {
-            stoId = setTimeout(_fetchQueue, 20);
+            stoId = setTimeout(_fetchQueue, FETCH_QUEUE_INTERVAL);
           }
           return;
         }
