@@ -17,6 +17,9 @@
 
     var responseCallbacks = {};
     var uniqueId = 1;
+    
+    var lastCallTime = 0;
+    var stoId = null;
 
     // 创建消息index队列iframe
     function _createQueueReadyIframe(doc) {
@@ -74,14 +77,29 @@
         messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://' + QUEUE_HAS_MESSAGE;
     }
 
+
     // 提供给native调用,该函数作用:获取sendMessageQueue返回给native,由于android不能直接获取返回的内容,所以使用url shouldOverrideUrlLoading 的方式返回内容
     function _fetchQueue() {
+        // 空数组直接返回 
+        if (sendMessageQueue.length === 0) {
+          return;
+        }
+
+        // _fetchQueue 的调用间隔过短，延迟调用
+        if (new Date().getTime() - lastCallTime < 20) {
+          if (!stoId) {
+            stoId = setTimeout(_fetchQueue, 20);
+          }
+          return;
+        }
+
+        lastCallTime = new Date().getTime();
+        stoId = null;
         var messageQueueString = JSON.stringify(sendMessageQueue);
         sendMessageQueue = [];
         //android can't read directly the return data, so we can reload iframe src to communicate with java
-        if (messageQueueString !== '[]') {
-            bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
-        }
+        bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
+        
     }
 
     //提供给native使用,
