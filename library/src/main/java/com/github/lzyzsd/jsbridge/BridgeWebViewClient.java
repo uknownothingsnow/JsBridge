@@ -25,6 +25,7 @@ public class BridgeWebViewClient extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        final String originalUrl = url;
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -38,7 +39,7 @@ public class BridgeWebViewClient extends WebViewClient {
             webView.flushMessageQueue();
             return true;
         } else {
-            return this.onCustomShouldOverrideUrlLoading(url)?true:super.shouldOverrideUrlLoading(view, url);
+            return this.onCustomShouldOverrideUrlLoading(originalUrl)?true:super.shouldOverrideUrlLoading(view, originalUrl);
         }
     }
 
@@ -60,7 +61,7 @@ public class BridgeWebViewClient extends WebViewClient {
                 webView.flushMessageQueue();
                 return true;
             } else {
-                return this.onCustomShouldOverrideUrlLoading(url)?true:super.shouldOverrideUrlLoading(view, request);
+                return this.onCustomShouldOverrideUrlLoading(request.getUrl().toString())?true:super.shouldOverrideUrlLoading(view, request);
             }
         }else {
             return super.shouldOverrideUrlLoading(view, request);
