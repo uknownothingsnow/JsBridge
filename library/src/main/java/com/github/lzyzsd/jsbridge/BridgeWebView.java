@@ -7,10 +7,9 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
-import java.net.URLEncoder;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +20,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge{
 
 	private final String TAG = "BridgeWebView";
 
+	private final int URL_MAX_CHARACTER_NUM=2097152;
 	public static final String toLoadJs = "WebViewJavascriptBridge.js";
 	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
 	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
@@ -152,7 +152,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge{
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-            this.loadUrl(javascriptCommand);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT&&javascriptCommand.length()>=URL_MAX_CHARACTER_NUM) {
+				this.evaluateJavascript(javascriptCommand,null);
+			}else {
+				this.loadUrl(javascriptCommand);
+			}
         }
     }
 
