@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 version = "1.0.0"
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 28
 //    buildToolsVersion "25.0.3"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 17
+        targetSdkVersion 28
         versionCode 1
         versionName version
     }
@@ -25,28 +25,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 
-
-//def siteUrl = 'https://github.com/lzyzsd/JsBridge'
-//def gitUrl = 'https://github.com/lzyzsd/JsBridge.git'
-//apply plugin: 'com.github.dcendents.android-maven'
-//group = "com.github.lzyzsd.jsbridge"
-//task sourcesJar(type: Jar) {
-//    from android.sourceSets.main.java.srcDirs
-//    classifier = 'sources'
-//}
-//task javadoc(type: Javadoc) {
-//    source = android.sourceSets.main.java.srcDirs
-//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-//}
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-//artifacts {
-//    archives javadocJar
-//    archives sourcesJar
-//}
-//Properties properties = new Properties()
-//properties.load(project.rootProject.file('local.properties').newDataInputStream())
