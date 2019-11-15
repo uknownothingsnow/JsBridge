@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+
 public class BridgeUtil {
 	final static String YY_OVERRIDE_SCHEMA = "yy://";
 	final static String YY_RETURN_DATA = YY_OVERRIDE_SCHEMA + "return/";//格式为   yy://return/{function}/returncontent
@@ -21,49 +22,13 @@ public class BridgeUtil {
 	final static String JS_FETCH_QUEUE_FROM_JAVA = "javascript:WebViewJavascriptBridge._fetchQueue();";
 	public final static String JAVASCRIPT_STR = "javascript:";
 
-	// 例子 javascript:WebViewJavascriptBridge._fetchQueue(); --> _fetchQueue
-	public static String parseFunctionName(String jsUrl){
-		return jsUrl.replace("javascript:WebViewJavascriptBridge.", "").replaceAll("\\(.*\\);", "");
-	}
 
-	// 获取到传递信息的body值
-	// url = yy://return/_fetchQueue/[{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
-	public static String getDataFromReturnUrl(String url) {
-		if(url.startsWith(YY_FETCH_QUEUE)) {
-			// return = [{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
-			return url.replace(YY_FETCH_QUEUE, EMPTY_STR);
-		}
+	public static final String JAVA_SCRIPT = "WebViewJavascriptBridge.js";
+	public final static String UNDERLINE_STR = "_";
+	public final static String CALLBACK_ID_FORMAT = "JAVA_CB_%s";
+	public final static String JS_HANDLE_MESSAGE_FROM_JAVA = "javascript:WebViewJavascriptBridge._handleMessageFromNative('%s');";
+	public final static String JAVASCRIPT_STR = "javascript:%s";
 
-		// temp = _fetchQueue/[{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
-		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
-		String[] functionAndData = temp.split(SPLIT_MARK);
-
-		if(functionAndData.length >= 2) {
-			StringBuilder sb = new StringBuilder();
-			for (int i = 1; i < functionAndData.length; i++) {
-				sb.append(functionAndData[i]);
-			}
-			// return = [{"responseId":"JAVA_CB_2_3957","responseData":"Javascript Says Right back aka!"}]
-			return sb.toString();
-		}
-		return null;
-	}
-
-	// 获取到传递信息的方法
-	// url = yy://return/_fetchQueue/[{"responseId":"JAVA_CB_1_360","responseData":"Javascript Says Right back aka!"}]
-	public static String getFunctionFromReturnUrl(String url) {
-		// temp = _fetchQueue/[{"responseId":"JAVA_CB_1_360","responseData":"Javascript Says Right back aka!"}]
-		String temp = url.replace(YY_RETURN_DATA, EMPTY_STR);
-		String[] functionAndData = temp.split(SPLIT_MARK);
-		if(functionAndData.length >= 1){
-			// functionAndData[0] = _fetchQueue
-			return functionAndData[0];
-		}
-		return null;
-	}
-
-	
-	
 	/**
 	 * js 文件将注入为第一个script引用
 	 * @param view WebView
@@ -117,6 +82,7 @@ public class BridgeUtil {
 				try {
 					in.close();
 				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}

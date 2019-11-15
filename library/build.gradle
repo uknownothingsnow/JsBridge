@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 version = "1.0.0"
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+//    buildToolsVersion "25.0.3"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 17
+        targetSdkVersion 28
         versionCode 1
         versionName version
     }
@@ -25,7 +25,10 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
+
 
 def siteUrl = 'https://github.com/lzyzsd/JsBridge'
 def gitUrl = 'https://github.com/lzyzsd/JsBridge.git'
