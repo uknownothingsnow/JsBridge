@@ -12,7 +12,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Button;
 
+import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.BridgeWebView;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.github.lzyzsd.jsbridge.OnBridgeCallback;
 import com.google.gson.Gson;
 
@@ -77,7 +79,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		webView.addJavascriptInterface(new MainJavascriptInterface(webView.getCallbacks(), webView), "android");
+		webView.addJavascriptInterface(new MainJavascriptInterface(webView), "android");
 		webView.setGson(new Gson());
 		webView.loadUrl("file:///android_asset/demo.html");
 
@@ -87,7 +89,15 @@ public class MainActivity extends Activity implements OnClickListener {
         user.location = location;
         user.name = "大头鬼";
 
-        webView.callHandler("functionInJs", new Gson().toJson(user), new OnBridgeCallback() {
+        webView.registerHandler("submitFromWeb2", new BridgeHandler() {
+			@Override
+			public void handler(String data, CallBackFunction function) {
+				Log.d(TAG, "submitFromWeb2, data" + data);
+				function.onCallBack("java submitFromWeb2 back to you");
+			}
+		});
+
+        webView.callHandler("functionInJs", new Gson().toJson(user), new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
 				Log.d(TAG, "onCallBack: " + data);

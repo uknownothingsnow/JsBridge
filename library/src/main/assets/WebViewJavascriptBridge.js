@@ -67,6 +67,8 @@
                  responseCallback(responseData);
                  delete responseCallbacks[callbackId];
              }
+        }else{
+             window.android.send(handlerName, JSON.stringify(message), callbackId)
         }
     }
 

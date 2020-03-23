@@ -3,8 +3,12 @@ package com.github.lzyzsd.jsbridge.example;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import androidx.annotation.NonNull;
+
+import com.github.lzyzsd.jsbridge.BaseJavascriptInterface;
+import com.github.lzyzsd.jsbridge.BridgeHelper;
 import com.github.lzyzsd.jsbridge.BridgeWebView;
-import com.github.lzyzsd.jsbridge.OnBridgeCallback;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
 
 import java.util.Map;
 
@@ -13,14 +17,17 @@ import java.util.Map;
  * Author: bigwang
  * Description:
  */
-public class MainJavascriptInterface extends BridgeWebView.BaseJavascriptInterface {
+public class MainJavascriptInterface extends BaseJavascriptInterface {
 
-    private BridgeWebView mWebView;
 
-    public MainJavascriptInterface(Map<String, OnBridgeCallback> callbacks, BridgeWebView webView) {
-        super(callbacks);
-        mWebView = webView;
+    public MainJavascriptInterface(@NonNull BridgeWebView webView) {
+        super(webView);
     }
+
+    public MainJavascriptInterface(BridgeHelper helper) {
+        super(helper);
+    }
+
 
     public String send(String data) {
         return "it is default response";
@@ -28,8 +35,9 @@ public class MainJavascriptInterface extends BridgeWebView.BaseJavascriptInterfa
 
 
     @JavascriptInterface
-    public void submitFromWeb(String data, String callbackId) {
+    public String submitFromWeb(String data, String callbackId) {
         Log.d("chromium data", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
-        mWebView.sendResponse("submitFromWeb response", callbackId);
+//        mWebView.sendResponse("submitFromWeb response", callbackId);
+        return "submitFromWeb response";
     }
 }

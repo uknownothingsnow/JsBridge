@@ -1,7 +1,9 @@
 package com.github.lzyzsd.jsbridge;
 
-public interface OnBridgeCallback {
-	
-	void onCallBack(String data);
-
+/**
+ * Created on 2020/3/23
+ * Author: bigwang
+ * Description:
+ */
+public interface OnBridgeCallback extends CallBackFunction {
 }

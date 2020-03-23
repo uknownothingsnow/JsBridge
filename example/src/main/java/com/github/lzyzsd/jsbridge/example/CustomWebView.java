@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import androidx.annotation.RequiresApi;
 
 import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.BridgeHelper;
@@ -48,17 +50,6 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
         }
 
         bridgeHelper = new BridgeHelper(this);
-        this.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView webView, String s) {
-                bridgeHelper.onPageFinished();
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView webView, String s) {
-                return bridgeHelper.shouldOverrideUrlLoading(s);
-            }
-        });
     }
 
     /**
@@ -68,17 +59,6 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
     public void setDefaultHandler(BridgeHandler handler) {
         bridgeHelper.setDefaultHandler(handler);
     }
-
-    @Override
-    public void send(String data) {
-        send(data, null);
-    }
-
-    @Override
-    public void send(String data, CallBackFunction responseCallback) {
-        bridgeHelper.send(data, responseCallback);
-    }
-
 
     /**
      * register handler,so that javascript can call it
@@ -112,4 +92,24 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
         bridgeHelper.callHandler(handlerName, data, callBack);
     }
 
+    @Override
+    public void sendToWeb(Object data) {
+        bridgeHelper.sendToWeb(data);
+    }
+
+    @Override
+    public void sendToWeb(Object data, CallBackFunction responseCallback) {
+        bridgeHelper.sendToWeb(data, responseCallback);
+    }
+
+    @Override
+    public void sendToWeb(String function, Object... values) {
+        bridgeHelper.sendToWeb(function, values);
+    }
+
+    @Override
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void sendToWeb(String function, ValueCallback<String> callback, Object... values) {
+        bridgeHelper.sendToWeb(function, callback, values);
+    }
 }

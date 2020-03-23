@@ -3,11 +3,11 @@ package com.github.lzyzsd.jsbridge;
 
 import android.webkit.ValueCallback;
 
-interface WebViewJavascriptBridge {
+public interface WebViewJavascriptBridge {
 	
 	void sendToWeb(Object data);
 
-	void sendToWeb(Object data, OnBridgeCallback responseCallback);
+	void sendToWeb(Object data, CallBackFunction responseCallback);
 
 	void sendToWeb(String function, Object... values);
 
