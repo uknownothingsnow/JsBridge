@@ -29,11 +29,10 @@ import java.util.Map;
 @SuppressLint("SetJavaScriptEnabled")
 public class BridgeWebView extends WebView implements WebViewJavascriptBridge, BridgeWebViewClient.OnLoadJSListener {
 
-	private final int URL_MAX_CHARACTER_NUM=2097152;
-	public static final String toLoadJs = "WebViewJavascriptBridge.js";
-	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
-	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
-	BridgeHandler defaultHandler = new DefaultHandler();
+
+    Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
+    Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
+    BridgeHandler defaultHandler = new DefaultHandler();
     private Map<String, OnBridgeCallback> mCallbacks = new ArrayMap<>();
 
     private List<Object> mMessages = new ArrayList<>();
@@ -135,9 +134,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
 
     /**
-     *Experimental. Use with caution
+     * Experimental. Use with caution
+     *
      * @param function method name
-     * @param values method parameters
+     * @param values   method parameters
      */
     @Override
     public void sendToWeb(String function, Object... values) {
@@ -155,10 +155,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
 
     /**
-     *Experimental. Use with caution
+     * Experimental. Use with caution
+     *
      * @param function method name
      * @param callback value callback
-     * @param values method parameters
+     * @param values   method parameters
      */
     @Override
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -231,11 +232,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT&&javascriptCommand.length()>=URL_MAX_CHARACTER_NUM) {
-				this.evaluateJavascript(javascriptCommand,null);
-			}else {
-				this.loadUrl(javascriptCommand);
-			}
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                this.evaluateJavascript(javascriptCommand, null);
+            } else {
+                this.loadUrl(javascriptCommand);
+            }
         }
     }
 
