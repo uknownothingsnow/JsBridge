@@ -53,13 +53,13 @@
         }
         try {
              var fn = eval('window.android.' + handlerName);
-         } catch(e) {
+        } catch(e) {
              console.log(e);
-         }
-         if (typeof fn === 'function'){
+        }
+        if (typeof fn === 'function'){
              var responseData = fn.call(this, JSON.stringify(message), callbackId);
-             if(responseData){
-              console.log('response message: '+ responseData);
+             if(responseData != null){
+                 console.log('response message: '+ responseData);
                  responseCallback = responseCallbacks[callbackId];
                  if (!responseCallback) {
                      return;
@@ -67,7 +67,7 @@
                  responseCallback(responseData);
                  delete responseCallbacks[callbackId];
              }
-         }
+        }
     }
 
     //提供给native使用,

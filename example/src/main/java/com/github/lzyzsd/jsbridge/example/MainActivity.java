@@ -77,7 +77,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		webView.addJavascriptInterface(new MainJavascrotInterface(webView.getCallbacks(), webView), "android");
+		webView.addJavascriptInterface(new MainJavascriptInterface(webView.getCallbacks(), webView), "android");
 		webView.setGson(new Gson());
 		webView.loadUrl("file:///android_asset/demo.html");
 

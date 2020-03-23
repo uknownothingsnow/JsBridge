@@ -5,14 +5,17 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.annotation.RequiresApi;
+import androidx.collection.ArrayMap;
 
 import com.github.lzyzsd.library.BuildConfig;
 import com.google.gson.Gson;
@@ -54,12 +57,14 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
     private void init() {
         clearCache(true);
-        getSettings().setUseWideViewPort(true);
+        WebSettings webSettings = getSettings();
+        webSettings.setUseWideViewPort(true);
 //		webView.getSettings().setLoadWithOverviewMode(true);
-        getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        getSettings().setJavaScriptEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setJavaScriptEnabled(true);
+
 //        mContent.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -123,15 +128,43 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
     }
 
 
+    /**
+     *Experimental. Use with caution
+     * @param function method name
+     * @param values method parameters
+     */
     @Override
     public void sendToWeb(String function, Object... values) {
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
             String jsCommand = String.format(function, values);
             jsCommand = String.format(BridgeUtil.JAVASCRIPT_STR, jsCommand);
-            loadUrl(jsCommand);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                evaluateJavascript(jsCommand, null);
+            } else {
+                loadUrl(jsCommand);
+            }
         }
     }
+
+
+    /**
+     *Experimental. Use with caution
+     * @param function method name
+     * @param callback value callback
+     * @param values method parameters
+     */
+    @Override
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void sendToWeb(String function, ValueCallback<String> callback, Object... values) {
+        // 必须要找主线程才会将数据传递出去 --- 划重点
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            String jsCommand = String.format(function, values);
+            jsCommand = String.format(BridgeUtil.JAVASCRIPT_STR, jsCommand);
+            evaluateJavascript(jsCommand, callback);
+        }
+    }
+
 
     /**
      * 保存message到消息队列
@@ -141,7 +174,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
      * @param responseCallback OnBridgeCallback
      */
     private void doSend(String handlerName, Object data, OnBridgeCallback responseCallback) {
-        if (!(data instanceof String) && mGson == null){
+        if (!(data instanceof String) && mGson == null) {
             return;
         }
         JSRequest request = new JSRequest();
@@ -178,7 +211,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
      * @param message Message
      */
     private void dispatchMessage(Object message) {
-        if (mGson == null){
+        if (mGson == null) {
             return;
         }
         String messageJson = mGson.toJson(message);
@@ -197,16 +230,16 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
     }
 
     public void sendResponse(Object data, String callbackId) {
-        if (!(data instanceof String) && mGson == null){
+        if (!(data instanceof String) && mGson == null) {
             return;
         }
         if (!TextUtils.isEmpty(callbackId)) {
             final JSResponse response = new JSResponse();
             response.responseId = callbackId;
             response.responseData = data instanceof String ? (String) data : mGson.toJson(data);
-            if (Thread.currentThread() == Looper.getMainLooper().getThread()){
+            if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
                 dispatchMessage(response);
-            }else {
+            } else {
                 post(new Runnable() {
                     @Override
                     public void run() {
@@ -233,14 +266,22 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         }
 
         @JavascriptInterface
-        public String send(String data, String callbackId) {
+        public final String send(String data, String callbackId) {
             Log.d("chromium", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
-            return send(data);
+            return receiveMessage(data, callbackId);
         }
 
         @JavascriptInterface
-        public void response(String data, String responseId) {
+        public final void response(String data, String responseId) {
             Log.d("chromium", data + ", responseId: " + responseId + " " + Thread.currentThread().getName());
+            responseFormWeb(data, responseId);
+        }
+
+        protected String receiveMessage(String data, String callbackId) {
+            return null;
+        }
+
+        protected void responseFormWeb(String data, String responseId) {
             if (!TextUtils.isEmpty(responseId)) {
                 OnBridgeCallback function = mCallbacks.remove(responseId);
                 if (function != null) {
@@ -249,7 +290,6 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
             }
         }
 
-        public abstract String send(String data);
     }
 
 }
