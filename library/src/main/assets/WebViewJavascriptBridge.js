@@ -36,7 +36,11 @@
     }
     // 调用线程
     function callHandler(handlerName, data, responseCallback) {
-
+        // 如果方法不需要参数，只有回调函数，简化JS中的调用
+        if (arguments.length == 2 && typeof data == 'function') {
+			responseCallback = data;
+			data = null;
+		}
         _doSend(handlerName, data, responseCallback);
     }
 
