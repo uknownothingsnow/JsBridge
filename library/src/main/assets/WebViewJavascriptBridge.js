@@ -119,7 +119,7 @@
             receiveMessageQueue.push(messageJSON);
         }
         _dispatchMessageFromNative(messageJSON);
-       
+
     }
 
     var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
@@ -132,7 +132,12 @@
 
     var doc = document;
     var readyEvent = doc.createEvent('Events');
+    var jobs = window.WVJBCallbacks || [];
     readyEvent.initEvent('WebViewJavascriptBridgeReady');
     readyEvent.bridge = WebViewJavascriptBridge;
+    window.WVJBCallbacks = []
+    jobs.forEach(function (job) {
+        job(WebViewJavascriptBridge)
+    })
     doc.dispatchEvent(readyEvent);
 })();
