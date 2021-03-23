@@ -269,7 +269,9 @@ public class BridgeHelper implements WebViewJavascriptBridge {
 
     public boolean shouldOverrideUrlLoading(String url) {
         try {
-            url = URLDecoder.decode(url, "UTF-8");
+            // decode 之前，处理 % 和 +
+            String replacedUrl = url.replaceAll("%(?![0-9a-fA-F]{2})", "%25").replaceAll("\\+", "%2B");
+            url = URLDecoder.decode(replacedUrl, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             Log.w(TAG, e);
         }
