@@ -18,7 +18,11 @@ import android.webkit.WebViewClient;
 import com.github.lzyzsd.library.BuildConfig;
 import com.google.gson.Gson;
 
+
+import org.json.JSONObject;
+
 import java.net.URLEncoder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -189,12 +193,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         }
         String messageJson = mGson.toJson(message);
         //escape special characters for json string  为json字符串转义特殊字符
-        messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
-        messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
-        messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
-        messageJson = messageJson.replaceAll("%7B", URLEncoder.encode("%7B"));
-        messageJson = messageJson.replaceAll("%7D", URLEncoder.encode("%7D"));
-        messageJson = messageJson.replaceAll("%22", URLEncoder.encode("%22"));
+
+		  // 系统原生 API 做 Json转义，没必要自己正则替换，而且替换不一定完整
+        messageJson = JSONObject.quote(messageJson);
+
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
