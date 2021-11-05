@@ -6,14 +6,8 @@
         return;
     }
 
-    var messagingIframe;
-    var bizMessagingIframe;
-    var sendMessageQueue = [];
     var receiveMessageQueue = [];
     var messageHandlers = {};
-
-    var CUSTOM_PROTOCOL_SCHEME = 'yy';
-    var QUEUE_HAS_MESSAGE = '__QUEUE_MESSAGE__/';
 
     var responseCallbacks = {};
     var uniqueId = 1;
@@ -49,9 +43,7 @@
 
     // 发送
     function send(data, responseCallback) {
-        _doSend({
-            data: data
-        }, responseCallback);
+        _doSend('send', data, responseCallback);
     }
 
     // 注册线程 往数组里面添加值
@@ -60,19 +52,43 @@
     }
     // 调用线程
     function callHandler(handlerName, data, responseCallback) {
-        _doSend({
-            handlerName: handlerName,
-            data: data
-        }, responseCallback);
+        // 如果方法不需要参数，只有回调函数，简化JS中的调用
+        if (arguments.length == 2 && typeof data == 'function') {
+			responseCallback = data;
+			data = null;
+		}
+        _doSend(handlerName, data, responseCallback);
     }
 
     //sendMessage add message, 触发native处理 sendMessage
-    function _doSend(message, responseCallback) {
-        if (responseCallback) {
-            var callbackId = 'cb_' + (uniqueId++) + '_' + new Date().getTime();
+    function _doSend(handlerName, message, responseCallback) {
+        var callbackId;
+        if(typeof responseCallback === 'string'){
+            callbackId = responseCallback;
+        } else if (responseCallback) {
+            callbackId = 'cb_' + (uniqueId++) + '_' + new Date().getTime();
             responseCallbacks[callbackId] = responseCallback;
             message.callbackId = callbackId;
+        }else{
+            callbackId = '';
         }
+        try {
+             var fn = eval('window.android.' + handlerName);
+         } catch(e) {
+             console.log(e);
+         }
+         if (typeof fn === 'function'){
+             var responseData = fn.call(this, JSON.stringify(message), callbackId);
+             if(responseData){
+              console.log('response message: '+ responseData);
+                 responseCallback = responseCallbacks[callbackId];
+                 if (!responseCallback) {
+                     return;
+                  }
+                 responseCallback(responseData);
+                 delete responseCallbacks[callbackId];
+             }
+         }
 
         sendMessageQueue.push(message);
         messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://' + QUEUE_HAS_MESSAGE;
@@ -99,7 +115,6 @@
         sendMessageQueue = [];
         //android can't read directly the return data, so we can reload iframe src to communicate with java
         bizMessagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://return/_fetchQueue/' + encodeURIComponent(messageQueueString);
-        
     }
 
     //提供给native使用,
@@ -120,10 +135,7 @@
                 if (message.callbackId) {
                     var callbackResponseId = message.callbackId;
                     responseCallback = function(responseData) {
-                        _doSend({
-                            responseId: callbackResponseId,
-                            responseData: responseData
-                        });
+                        _doSend('response', responseData, callbackResponseId);
                     };
                 }
 
@@ -145,12 +157,12 @@
 
     //提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
     function _handleMessageFromNative(messageJSON) {
-        console.log(messageJSON);
+        console.log('handle message: '+ messageJSON);
         if (receiveMessageQueue) {
             receiveMessageQueue.push(messageJSON);
         }
         _dispatchMessageFromNative(messageJSON);
-       
+
     }
 
     var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
@@ -158,15 +170,17 @@
         send: send,
         registerHandler: registerHandler,
         callHandler: callHandler,
-        _fetchQueue: _fetchQueue,
         _handleMessageFromNative: _handleMessageFromNative
     };
 
     var doc = document;
-    _createQueueReadyIframe(doc);
-    _createQueueReadyIframe4biz(doc);
     var readyEvent = doc.createEvent('Events');
+    var jobs = window.WVJBCallbacks || [];
     readyEvent.initEvent('WebViewJavascriptBridgeReady');
     readyEvent.bridge = WebViewJavascriptBridge;
+    window.WVJBCallbacks = []
+    jobs.forEach(function (job) {
+        job(WebViewJavascriptBridge)
+    })
     doc.dispatchEvent(readyEvent);
 })();

@@ -1,4 +1,4 @@
-#JsBridge
+# JsBridge
 
 -----
 
@@ -129,8 +129,7 @@ will print 'JS got a message hello' and 'JS responding with' in webview console.
 ## Notice
 
 This lib will inject a WebViewJavascriptBridge Object to window object.
-So in your js, before use WebViewJavascriptBridge, you must detect if WebViewJavascriptBridge exist.
-If WebViewJavascriptBridge does not exit, you can listen to WebViewJavascriptBridgeReady event, as the blow code shows:
+You can listen to `WebViewJavascriptBridgeReady` event to ensure `window.WebViewJavascriptBridge` is exist, as the blow code shows:
 
 ```javascript
 
@@ -147,6 +146,38 @@ If WebViewJavascriptBridge does not exit, you can listen to WebViewJavascriptBri
     }
 
 ```
+
+Or put all JsBridge function call into `window.WVJBCallbacks` array if `window.WebViewJavascriptBridge` is undefined, this taks queue will be flushed when `WebViewJavascriptBridgeReady` event triggered.
+
+Copy and paste setupWebViewJavascriptBridge into your JS:
+
+```javascript
+function setupWebViewJavascriptBridge(callback) {
+	if (window.WebViewJavascriptBridge) {
+        return callback(WebViewJavascriptBridge);
+    }
+	if (window.WVJBCallbacks) {
+        return window.WVJBCallbacks.push(callback);
+    }
+	window.WVJBCallbacks = [callback];
+}
+```
+
+Call `setupWebViewJavascriptBridge` and then use the bridge to register handlers or call Java handlers:
+
+```javascript
+setupWebViewJavascriptBridge(function(bridge) {
+	bridge.registerHandler('JS Echo', function(data, responseCallback) {
+		console.log("JS Echo called with:", data);
+		responseCallback(data);
+    });
+	bridge.callHandler('ObjC Echo', {'key':'value'}, function(responseData) {
+		console.log("JS received response:", responseData);
+	});
+});
+```
+
+It same with https://github.com/marcuswestin/WebViewJavascriptBridge, that would be easier for you to define same behavior in different platform between Android and iOS. Meanwhile, writing concise code.
 
 ## License
 
