@@ -109,7 +109,7 @@ for example:
 
 ```javascript
 
-    bridge.init(function(message, responseCallback) {
+    window.WebViewJavascriptBridge.init(function(message, responseCallback) {
         console.log('JS got a message', message);
         var data = {
             'Javascript Responds': 'Wee!'
