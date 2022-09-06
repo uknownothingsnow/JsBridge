@@ -147,7 +147,7 @@ You can listen to `WebViewJavascriptBridgeReady` event to ensure `window.WebView
 
 ```
 
-Or put all JsBridge function call into `window.WVJBCallbacks` array if `window.WebViewJavascriptBridge` is undefined, this taks queue will be flushed when `WebViewJavascriptBridgeReady` event triggered.
+Or put all JsBridge function call into `window.WVJBCallbacks` array if `window.WebViewJavascriptBridge` is undefined, this task queue will be flushed when `WebViewJavascriptBridgeReady` event triggered.
 
 Copy and paste setupWebViewJavascriptBridge into your JS:
 
