@@ -58,6 +58,11 @@
     function registerHandler(handlerName, handler) {
         messageHandlers[handlerName] = handler;
     }
+
+    function removeHandler(handlerName, handler) {
+        delete messageHandlers[handlerName];
+    }
+
     // 调用线程
     function callHandler(handlerName, data, responseCallback) {
         // 如果方法不需要参数，只有回调函数，简化JS中的调用
