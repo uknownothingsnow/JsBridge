@@ -47,7 +47,7 @@
 
             //send message to native
             var data = {id: 1, content: "这是一个图片 <img src=\"a.png\"/> test\r\nhahaha"};
-            window.WebViewJavascriptBridge.send(
+            WebViewJavascriptBridge.doSend(
                 data
                 , function(responseData) {
                     document.getElementById("show").innerHTML = "repsonseData from java, data = " + responseData
@@ -75,7 +75,7 @@
         }
 
         function connectWebViewJavascriptBridge(callback) {
-            if (window.WebViewJavascriptBridge) {
+            if (window.WebViewJavascriptBridge && WebViewJavascriptBridge.inited) {
                 callback(WebViewJavascriptBridge)
             } else {
                 document.addEventListener(
@@ -102,7 +102,7 @@
             });
 
             bridge.registerHandler("functionInJs", function(data, responseCallback) {
-                document.getElementById("show").innerHTML = ("data from Java: = " + data);
+                document.getElementById("show").innerHTML = ("data from Java: = " + data + Date.now());
                 if (responseCallback) {
                     var responseData = "Javascript Says Right back aka!";
                     responseCallback(responseData);

@@ -9,8 +9,8 @@ import android.webkit.WebViewClient;
 
 import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.BridgeHelper;
-import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.github.lzyzsd.jsbridge.IWebView;
+import com.github.lzyzsd.jsbridge.OnBridgeCallback;
 import com.github.lzyzsd.jsbridge.WebViewJavascriptBridge;
 
 /**
@@ -69,17 +69,6 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
         bridgeHelper.setDefaultHandler(handler);
     }
 
-    @Override
-    public void send(String data) {
-        send(data, null);
-    }
-
-    @Override
-    public void send(String data, CallBackFunction responseCallback) {
-        bridgeHelper.send(data, responseCallback);
-    }
-
-
     /**
      * register handler,so that javascript can call it
      * 注册处理程序,以便javascript调用它
@@ -108,8 +97,22 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
      * @param data        data
      * @param callBack    CallBackFunction
      */
-    public void callHandler(String handlerName, String data, CallBackFunction callBack) {
+    public void callHandler(String handlerName, String data, OnBridgeCallback callBack) {
         bridgeHelper.callHandler(handlerName, data, callBack);
     }
 
+    @Override
+    public void sendToWeb(String data) {
+        sendToWeb(data, (OnBridgeCallback) null);
+    }
+
+    @Override
+    public void sendToWeb(String data, OnBridgeCallback responseCallback) {
+        bridgeHelper.sendToWeb(data, responseCallback);
+    }
+
+    @Override
+    public void sendToWeb(String function, Object... values) {
+        bridgeHelper.sendToWeb(function, values);
+    }
 }

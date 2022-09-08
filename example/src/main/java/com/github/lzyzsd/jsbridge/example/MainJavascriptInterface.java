@@ -13,13 +13,17 @@ import java.util.Map;
  * Author: bigwang
  * Description:
  */
-public class MainJavascrotInterface extends BridgeWebView.BaseJavascriptInterface {
+public class MainJavascriptInterface extends BridgeWebView.BaseJavascriptInterface {
 
     private BridgeWebView mWebView;
 
-    public MainJavascrotInterface(Map<String, OnBridgeCallback> callbacks, BridgeWebView webView) {
+    public MainJavascriptInterface(Map<String, OnBridgeCallback> callbacks, BridgeWebView webView) {
         super(callbacks);
         mWebView = webView;
+    }
+
+    public MainJavascriptInterface(Map<String, OnBridgeCallback> callbacks) {
+        super(callbacks);
     }
 
     @Override
@@ -30,7 +34,7 @@ public class MainJavascrotInterface extends BridgeWebView.BaseJavascriptInterfac
 
     @JavascriptInterface
     public void submitFromWeb(String data, String callbackId) {
-        Log.d("chromium data", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
+        Log.d("MainJavascriptInterface", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
         mWebView.sendResponse("submitFromWeb response", callbackId);
     }
 }

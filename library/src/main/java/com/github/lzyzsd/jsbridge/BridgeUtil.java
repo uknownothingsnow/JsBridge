@@ -20,13 +20,10 @@ public class BridgeUtil {
 	final static String CALLBACK_ID_FORMAT = "JAVA_CB_%s";
 	final static String JS_HANDLE_MESSAGE_FROM_JAVA = "javascript:WebViewJavascriptBridge._handleMessageFromNative(%s);";
 	final static String JS_FETCH_QUEUE_FROM_JAVA = "javascript:WebViewJavascriptBridge._fetchQueue();";
-	public final static String JAVASCRIPT_STR = "javascript:";
+//	public final static String JAVASCRIPT_STR = "javascript:";
 
 
 	public static final String JAVA_SCRIPT = "WebViewJavascriptBridge.js";
-	public final static String UNDERLINE_STR = "_";
-	public final static String CALLBACK_ID_FORMAT = "JAVA_CB_%s";
-	public final static String JS_HANDLE_MESSAGE_FROM_JAVA = "javascript:WebViewJavascriptBridge._handleMessageFromNative('%s');";
 	public final static String JAVASCRIPT_STR = "javascript:%s";
 
 	/**
@@ -48,7 +45,7 @@ public class BridgeUtil {
 	 */
     public static void webViewLoadLocalJs(WebView view, String path){
         String jsContent = assetFile2Str(view.getContext(), path);
-        view.loadUrl("javascript:" + jsContent);
+		view.loadUrl("javascript:" + jsContent);
     }
 
 	/**
@@ -87,5 +84,17 @@ public class BridgeUtil {
 			}
 		}
 		return null;
+	}
+
+	public static String getFunctionFromReturnUrl(String url) {
+		return "";
+	}
+
+	public static String getDataFromReturnUrl(String url) {
+		return "";
+	}
+
+	public static String parseFunctionName(String jsUrl) {
+		return "";
 	}
 }

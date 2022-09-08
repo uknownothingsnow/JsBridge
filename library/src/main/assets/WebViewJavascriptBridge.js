@@ -2,12 +2,13 @@
 //since comments will cause error when use in webview.loadurl,
 //comments will be remove by java use regexp
 (function() {
-    if (window.WebViewJavascriptBridge) {
+    if (window.WebViewJavascriptBridge && window.WebViewJavascriptBridge.inited) {
         return;
     }
 
     var receiveMessageQueue = [];
     var messageHandlers = {};
+    var sendMessageQueue = [];
 
     var responseCallbacks = {};
     var uniqueId = 1;
@@ -15,30 +16,37 @@
     var lastCallTime = 0;
     var stoId = null;
     var FETCH_QUEUE_INTERVAL = 20;
+    var messagingIframe;
+    var CUSTOM_PROTOCOL_SCHEME = "yy";
+    var QUEUE_HAS_MESSAGE = "__QUEUE_MESSAGE__";
 
     // 创建消息index队列iframe
-    function _createQueueReadyIframe(doc) {
-        messagingIframe = doc.createElement('iframe');
+    function _createQueueReadyIframe() {
+        messagingIframe = document.createElement('iframe');
         messagingIframe.style.display = 'none';
-        doc.documentElement.appendChild(messagingIframe);
+        messagingIframe.src = CUSTOM_PROTOCOL_SCHEME + '://' + QUEUE_HAS_MESSAGE;
+        document.documentElement.appendChild(messagingIframe);
     }
     //创建消息体队列iframe
-    function _createQueueReadyIframe4biz(doc) {
-        bizMessagingIframe = doc.createElement('iframe');
+    function _createQueueReadyIframe4biz() {
+        bizMessagingIframe = document.createElement('iframe');
         bizMessagingIframe.style.display = 'none';
-        doc.documentElement.appendChild(bizMessagingIframe);
+        document.documentElement.appendChild(bizMessagingIframe);
     }
     //set default messageHandler  初始化默认的消息线程
     function init(messageHandler) {
         if (WebViewJavascriptBridge._messageHandler) {
             throw new Error('WebViewJavascriptBridge.init called twice');
         }
+        _createQueueReadyIframe();
+        _createQueueReadyIframe4biz();
         WebViewJavascriptBridge._messageHandler = messageHandler;
         var receivedMessages = receiveMessageQueue;
         receiveMessageQueue = null;
         for (var i = 0; i < receivedMessages.length; i++) {
             _dispatchMessageFromNative(receivedMessages[i]);
         }
+        WebViewJavascriptBridge.inited = true;
     }
 
     // 发送
@@ -73,14 +81,13 @@
             callbackId = '';
         }
         try {
-             var fn = eval('window.android.' + handlerName);
+             var fn = eval('WebViewJavascriptBridge.' + handlerName);
          } catch(e) {
              console.log(e);
          }
          if (typeof fn === 'function'){
-             var responseData = fn.call(this, JSON.stringify(message), callbackId);
+             var responseData = fn.call(WebViewJavascriptBridge, JSON.stringify(message), callbackId);
              if(responseData){
-              console.log('response message: '+ responseData);
                  responseCallback = responseCallbacks[callbackId];
                  if (!responseCallback) {
                      return;
@@ -96,7 +103,7 @@
 
     // 提供给native调用,该函数作用:获取sendMessageQueue返回给native,由于android不能直接获取返回的内容,所以使用url shouldOverrideUrlLoading 的方式返回内容
     function _fetchQueue() {
-        // 空数组直接返回 
+        // 空数组直接返回
         if (sendMessageQueue.length === 0) {
           return;
         }
@@ -157,7 +164,6 @@
 
     //提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
     function _handleMessageFromNative(messageJSON) {
-        console.log('handle message: '+ messageJSON);
         if (receiveMessageQueue) {
             receiveMessageQueue.push(messageJSON);
         }
@@ -165,22 +171,19 @@
 
     }
 
-    var WebViewJavascriptBridge = window.WebViewJavascriptBridge = {
-        init: init,
-        send: send,
-        registerHandler: registerHandler,
-        callHandler: callHandler,
-        _handleMessageFromNative: _handleMessageFromNative
-    };
+    WebViewJavascriptBridge.init = init;
+    WebViewJavascriptBridge.doSend = send;
+    WebViewJavascriptBridge.registerHandler = registerHandler;
+    WebViewJavascriptBridge.callHandler = callHandler;
+    WebViewJavascriptBridge._handleMessageFromNative = _handleMessageFromNative;
 
-    var doc = document;
-    var readyEvent = doc.createEvent('Events');
+    var readyEvent = document.createEvent('Events');
     var jobs = window.WVJBCallbacks || [];
     readyEvent.initEvent('WebViewJavascriptBridgeReady');
     readyEvent.bridge = WebViewJavascriptBridge;
-    window.WVJBCallbacks = []
+    window.WVJBCallbacks = [];
     jobs.forEach(function (job) {
         job(WebViewJavascriptBridge)
-    })
-    doc.dispatchEvent(readyEvent);
+    });
+    document.dispatchEvent(readyEvent);
 })();

@@ -24,7 +24,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
     private static final String TAG = "BridgeHelper";
 
     private static final String BRIDGE_JS = "WebViewJavascriptBridge.js";
-    private Map<String, CallBackFunction> responseCallbacks = new HashMap<>();
+    private Map<String, OnBridgeCallback> responseCallbacks = new HashMap<>();
     private Map<String, BridgeHandler> messageHandlers = new HashMap<>();
     private BridgeHandler defaultHandler = new DefaultHandler();
 
@@ -61,22 +61,12 @@ public class BridgeHelper implements WebViewJavascriptBridge {
      */
     private void handlerReturnData(String url) {
         String functionName = BridgeUtil.getFunctionFromReturnUrl(url);
-        CallBackFunction f = responseCallbacks.get(functionName);
+        OnBridgeCallback f = responseCallbacks.get(functionName);
         String data = BridgeUtil.getDataFromReturnUrl(url);
         if (f != null) {
             f.onCallBack(data);
             responseCallbacks.remove(functionName);
         }
-    }
-
-    @Override
-    public void send(String data) {
-        send(data, null);
-    }
-
-    @Override
-    public void send(String data, CallBackFunction responseCallback) {
-        doSend(null, data, responseCallback);
     }
 
     /**
@@ -86,7 +76,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
      * @param data             data
      * @param responseCallback CallBackFunction
      */
-    private void doSend(String handlerName, String data, CallBackFunction responseCallback) {
+    private void doSend(String handlerName, String data, OnBridgeCallback responseCallback) {
         Message m = new Message();
         if (!TextUtils.isEmpty(data)) {
             m.setData(data);
@@ -141,7 +131,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
      */
     private void flushMessageQueue() {
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-            loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new CallBackFunction() {
+            loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new OnBridgeCallback() {
 
                 @Override
                 public void onCallBack(String data) {
@@ -161,16 +151,16 @@ public class BridgeHelper implements WebViewJavascriptBridge {
                         String responseId = m.getResponseId();
                         // 是否是response  CallBackFunction
                         if (!TextUtils.isEmpty(responseId)) {
-                            CallBackFunction function = responseCallbacks.get(responseId);
+                            OnBridgeCallback function = responseCallbacks.get(responseId);
                             String responseData = m.getResponseData();
                             function.onCallBack(responseData);
                             responseCallbacks.remove(responseId);
                         } else {
-                            CallBackFunction responseFunction = null;
+                            OnBridgeCallback responseFunction = null;
                             // if had callbackId 如果有回调Id
                             final String callbackId = m.getCallbackId();
                             if (!TextUtils.isEmpty(callbackId)) {
-                                responseFunction = new CallBackFunction() {
+                                responseFunction = new OnBridgeCallback() {
                                     @Override
                                     public void onCallBack(String data) {
                                         Message responseMsg = new Message();
@@ -180,7 +170,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
                                     }
                                 };
                             } else {
-                                responseFunction = new CallBackFunction() {
+                                responseFunction = new OnBridgeCallback() {
                                     @Override
                                     public void onCallBack(String data) {
                                         // do nothing
@@ -204,7 +194,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
         }
     }
 
-    private void loadUrl(String jsUrl, CallBackFunction returnCallback) {
+    private void loadUrl(String jsUrl, OnBridgeCallback returnCallback) {
         this.loadUrl(jsUrl);
         // 添加至 Map<String, CallBackFunction>
         responseCallbacks.put(BridgeUtil.parseFunctionName(jsUrl), returnCallback);
@@ -247,7 +237,7 @@ public class BridgeHelper implements WebViewJavascriptBridge {
      * @param data        data
      * @param callBack    CallBackFunction
      */
-    public void callHandler(String handlerName, String data, CallBackFunction callBack) {
+    public void callHandler(String handlerName, String data, OnBridgeCallback callBack) {
         doSend(handlerName, data, callBack);
     }
 
@@ -284,5 +274,24 @@ public class BridgeHelper implements WebViewJavascriptBridge {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void sendToWeb(String data) {
+        sendToWeb(data, (OnBridgeCallback) null);
+    }
+
+    @Override
+    public void sendToWeb(String data, OnBridgeCallback responseCallback) {
+        doSend(null, data, responseCallback);
+    }
+
+    @Override
+    public void sendToWeb(String function, Object... values) {
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            String jsCommand = String.format(function, values);
+            jsCommand = String.format(BridgeUtil.JAVASCRIPT_STR, jsCommand);
+            loadUrl(jsCommand);
+        }
     }
 }

@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
 import androidx.annotation.Nullable;
+
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.ClientCertRequest;
 import android.webkit.HttpAuthHandler;
@@ -16,12 +18,16 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * 如果要自定义WebViewClient必须要集成此类
  * Created by bruce on 10/28/15.
  */
 class BridgeWebViewClient extends WebViewClient {
 
+    private static final String TAG = "BridgeWebViewClient";
     private OnLoadJSListener mListener;
 
     private WebViewClient mClient;
@@ -36,22 +42,25 @@ class BridgeWebViewClient extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        view.loadUrl(url);
         if (mClient != null) {
             return mClient.shouldOverrideUrlLoading(view, url);
         }
-        return super.shouldOverrideUrlLoading(view, url);
+        return interceptUrl(url) ? true : super.shouldOverrideUrlLoading(view, url);
     }
 
-    @Override
-    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            view.loadUrl(request.getUrl().getAuthority());
+    private boolean interceptUrl(String url) {
+        try {
+            url = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && mClient != null) {
-            return mClient.shouldOverrideUrlLoading(view, request);
+        Log.i(TAG, "shouldOverrideUrlLoading, url = " + url);
+        if (url.startsWith(BridgeUtil.YY_RETURN_DATA)) { // 如果是返回数据
+            return true;
+        } else if (url.startsWith(BridgeUtil.YY_OVERRIDE_SCHEMA)) { //
+            return true;
         }
-        return super.shouldOverrideUrlLoading(view, request);
+        return false;
     }
 
     @Override

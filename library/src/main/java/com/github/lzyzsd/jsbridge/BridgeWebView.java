@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +32,6 @@ import java.util.Map;
 public class BridgeWebView extends WebView implements WebViewJavascriptBridge, BridgeWebViewClient.OnLoadJSListener {
 
 	private final int URL_MAX_CHARACTER_NUM=2097152;
-	public static final String toLoadJs = "WebViewJavascriptBridge.js";
-	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
-	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
-	BridgeHandler defaultHandler = new DefaultHandler();
     private Map<String, OnBridgeCallback> mCallbacks = new ArrayMap<>();
 
     private List<Object> mMessages = new ArrayList<>();
@@ -111,12 +108,12 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
     }
 
     @Override
-    public void sendToWeb(Object data) {
+    public void sendToWeb(String data) {
         sendToWeb(data, (OnBridgeCallback) null);
     }
 
     @Override
-    public void sendToWeb(Object data, OnBridgeCallback responseCallback) {
+    public void sendToWeb(String data, OnBridgeCallback responseCallback) {
         doSend(null, data, responseCallback);
     }
 
@@ -196,7 +193,6 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
 		  // 系统原生 API 做 Json转义，没必要自己正则替换，而且替换不一定完整
         messageJson = JSONObject.quote(messageJson);
-
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
@@ -246,13 +242,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
         @JavascriptInterface
         public String send(String data, String callbackId) {
-            Log.d("chromium", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
+            Log.d("BaseJavascriptInterface", data + ", callbackId: " + callbackId + " " + Thread.currentThread().getName());
             return send(data);
         }
 
         @JavascriptInterface
         public void response(String data, String responseId) {
-            Log.d("chromium", data + ", responseId: " + responseId + " " + Thread.currentThread().getName());
+            Log.d("BaseJavascriptInterface", data + ", responseId: " + responseId + " " + Thread.currentThread().getName());
             if (!TextUtils.isEmpty(responseId)) {
                 OnBridgeCallback function = mCallbacks.remove(responseId);
                 if (function != null) {

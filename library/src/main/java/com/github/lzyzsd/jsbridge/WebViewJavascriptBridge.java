@@ -1,11 +1,11 @@
 package com.github.lzyzsd.jsbridge;
 
 
-interface WebViewJavascriptBridge {
+public interface WebViewJavascriptBridge {
 	
-	void sendToWeb(Object data);
+	void sendToWeb(String data);
 
-	void sendToWeb(Object data, OnBridgeCallback responseCallback);
+	void sendToWeb(String data, OnBridgeCallback responseCallback);
 
 	void sendToWeb(String function, Object... values);
 
