@@ -70,7 +70,7 @@ You can set a default handler in Java, so that js can send message to Java witho
 
 ```javascript
 
-    window.WebViewJavascriptBridge.send(
+    window.WebViewJavascriptBridge.doSend(
         data
         , function(responseData) {
             document.getElementById("show").innerHTML = "repsonseData from java, data = " + responseData
