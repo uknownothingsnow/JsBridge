@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 32
 //    buildToolsVersion "25.0.3"
 
     defaultConfig {
         applicationId "com.github.lzyzsd.jsbridge.example"
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
     }
