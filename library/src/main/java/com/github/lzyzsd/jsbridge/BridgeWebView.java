@@ -67,9 +67,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         getSettings().setJavaScriptEnabled(true);
 //        mContent.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
+       
         mClient = new BridgeWebViewClient(this);
         super.setWebViewClient(mClient);
     }
