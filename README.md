@@ -8,6 +8,9 @@ This project make a bridge between Java and JavaScript.
 
 It provides safe and convenient way to call Java code from js and call js code from java.
 
+## How JsBridge Work
+![JsBridge](./JsBridgeWork.png)
+
 ## Demo
 ![JsBridge Demo](https://raw.githubusercontent.com/lzyzsd/JsBridge/master/JsBridge.gif)
 
