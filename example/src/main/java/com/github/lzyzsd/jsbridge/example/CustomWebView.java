@@ -12,6 +12,9 @@ import com.github.lzyzsd.jsbridge.BridgeHelper;
 import com.github.lzyzsd.jsbridge.IWebView;
 import com.github.lzyzsd.jsbridge.OnBridgeCallback;
 import com.github.lzyzsd.jsbridge.WebViewJavascriptBridge;
+import com.google.gson.Gson;
+
+import java.util.Map;
 
 /**
  * 采用BridgeHelper集成JsBridge功能示例.定制WebView,可只添加实际需要的JsBridge接口.
@@ -23,6 +26,8 @@ import com.github.lzyzsd.jsbridge.WebViewJavascriptBridge;
 public class CustomWebView extends WebView implements WebViewJavascriptBridge, IWebView {
 
     private BridgeHelper bridgeHelper;
+
+    private Gson mGson;
 
     public CustomWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -114,5 +119,23 @@ public class CustomWebView extends WebView implements WebViewJavascriptBridge, I
     @Override
     public void sendToWeb(String function, Object... values) {
         bridgeHelper.sendToWeb(function, values);
+    }
+
+    @Override
+    public void responseFromWeb(String data, String callbackId) {
+        bridgeHelper.responseFromWeb(data,callbackId);
+    }
+
+    public void setGson(Gson gson){
+        this.mGson = gson;
+    }
+
+    public Map<String, OnBridgeCallback> getCallbacks() {
+        return bridgeHelper.getCallbacks();
+    }
+
+    @Override
+    public WebView getWebView() {
+        return this;
     }
 }

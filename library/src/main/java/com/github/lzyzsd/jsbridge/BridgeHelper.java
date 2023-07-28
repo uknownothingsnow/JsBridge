@@ -5,9 +5,12 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,12 +116,8 @@ public class BridgeHelper implements WebViewJavascriptBridge {
     private void dispatchMessage(Message m) {
         String messageJson = m.toJson();
         //escape special characters for json string  为json字符串转义特殊字符
-        messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
-        messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
-        messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
-        messageJson = messageJson.replaceAll("%7B", URLEncoder.encode("%7B"));
-        messageJson = messageJson.replaceAll("%7D", URLEncoder.encode("%7D"));
-        messageJson = messageJson.replaceAll("%22", URLEncoder.encode("%22"));
+        //系统原生API做Json转义替换手动转义，解决js解析数据格式报错
+        messageJson = JSONObject.quote(messageJson);
         String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
@@ -294,4 +293,32 @@ public class BridgeHelper implements WebViewJavascriptBridge {
             loadUrl(jsCommand);
         }
     }
+
+    public void sendResponse(Object data, String callbackId) {
+        if (!TextUtils.isEmpty(callbackId)) {
+            final Message response = new Message();
+            response.responseId = callbackId;
+            response.responseData = data instanceof String ? (String) data : new Gson().toJson(data);
+            if (Thread.currentThread() == Looper.getMainLooper().getThread()){
+                dispatchMessage(response);
+            }else {
+                webView.getWebView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dispatchMessage(response);
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void responseFromWeb(String data, String callbackId) {
+        sendResponse(data,callbackId);
+    }
+
+    public Map<String, OnBridgeCallback> getCallbacks() {
+        return responseCallbacks;
+    }
+
 }

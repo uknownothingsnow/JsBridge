@@ -140,6 +140,11 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         }
     }
 
+    @Override
+    public void responseFromWeb(String data, String callbackId) {
+        sendResponse(data,callbackId);
+    }
+
     /**
      * 保存message到消息队列
      *
@@ -222,7 +227,6 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
                     }
                 });
             }
-
         }
     }
 
