@@ -8,6 +8,9 @@ This project make a bridge between Java and JavaScript.
 
 It provides safe and convenient way to call Java code from js and call js code from java.
 
+## How JsBridge Work
+![JsBridge](./JsBridgeWork.png)
+
 ## Demo
 ![JsBridge Demo](https://raw.githubusercontent.com/lzyzsd/JsBridge/master/JsBridge.gif)
 
@@ -125,6 +128,22 @@ for example:
 ```
 
 will print 'JS got a message hello' and 'JS responding with' in webview console.
+
+### Switch to CustomWebview
+* activity_main.xml
+```xml
+    <com.github.lzyzsd.jsbridge.example.CustomWebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+     </com.github.lzyzsd.jsbridge.example.CustomWebView>
+```
+* MainActivity.java
+Class BridgeWebview change to CustomWebview;
+```java
+    CustomWebView webView = (CustomWebView) findViewById(R.id.webView);
+    
+```
 
 ## Notice
 
