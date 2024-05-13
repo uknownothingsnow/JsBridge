@@ -181,6 +181,7 @@
     WebViewJavascriptBridge.registerHandler = registerHandler;
     WebViewJavascriptBridge.callHandler = callHandler;
     WebViewJavascriptBridge._handleMessageFromNative = _handleMessageFromNative;
+    WebViewJavascriptBridge._fetchQueue = _fetchQueue;
 
     var readyEvent = document.createEvent('Events');
     var jobs = window.WVJBCallbacks || [];
