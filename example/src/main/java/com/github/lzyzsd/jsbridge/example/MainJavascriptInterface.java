@@ -24,6 +24,11 @@ public class MainJavascriptInterface extends BridgeWebView.BaseJavascriptInterfa
         mWebView = webView;
     }
 
+    public MainJavascriptInterface(Map<String, OnBridgeCallback> callbacks, Map<String, OnBridgeCallback> persistentCallbacks, WebViewJavascriptBridge webView) {
+        super(callbacks, persistentCallbacks);
+        mWebView = webView;
+    }
+
     public MainJavascriptInterface(Map<String, OnBridgeCallback> callbacks) {
         super(callbacks);
     }

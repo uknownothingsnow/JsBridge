@@ -33,6 +33,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
 
 	private final int URL_MAX_CHARACTER_NUM=2097152;
     private Map<String, OnBridgeCallback> mCallbacks = new ArrayMap<>();
+    private Map<String, OnBridgeCallback> mPersistentCallbacks = new ArrayMap<>();
 
     private List<Object> mMessages = new ArrayList<>();
 
@@ -86,6 +87,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         return mCallbacks;
     }
 
+    public Map<String, OnBridgeCallback> getPersistentCallbacks() {
+        return mPersistentCallbacks;
+    }
+
     @Override
     public void setWebViewClient(WebViewClient client) {
         mClient.setWebViewClient(client);
@@ -129,6 +134,18 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         doSend(handlerName, data, callBack);
     }
 
+    /**
+     * call javascript registered handler with persistent callback
+     * 调用javascript处理程序注册，使用持久回调
+     *
+     * @param handlerName handlerName
+     * @param data        data
+     * @param callBack    OnBridgeCallback (will be persistent and reusable)
+     */
+    public void callHandlerPersistent(String handlerName, String data, OnBridgeCallback callBack) {
+        doSendPersistent(handlerName, data, callBack);
+    }
+
 
     @Override
     public void sendToWeb(String function, Object... values) {
@@ -163,6 +180,33 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         if (responseCallback != null) {
             String callbackId = String.format(BridgeUtil.CALLBACK_ID_FORMAT, (++mUniqueId) + (BridgeUtil.UNDERLINE_STR + SystemClock.currentThreadTimeMillis()));
             mCallbacks.put(callbackId, responseCallback);
+            request.callbackId = callbackId;
+        }
+        if (!TextUtils.isEmpty(handlerName)) {
+            request.handlerName = handlerName;
+        }
+        queueMessage(request);
+    }
+
+    /**
+     * 保存message到消息队列，使用持久回调
+     *
+     * @param handlerName      handlerName
+     * @param data             data
+     * @param responseCallback OnBridgeCallback (persistent)
+     */
+    private void doSendPersistent(String handlerName, Object data, OnBridgeCallback responseCallback) {
+        if (!(data instanceof String) && mGson == null){
+            return;
+        }
+        JSRequest request = new JSRequest();
+        if (data != null) {
+            request.data = data instanceof String ? (String) data : mGson.toJson(data);
+        }
+        if (responseCallback != null) {
+            String callbackId = String.format(BridgeUtil.CALLBACK_ID_FORMAT, (++mUniqueId) + (BridgeUtil.UNDERLINE_STR + SystemClock.currentThreadTimeMillis()));
+            mCallbacks.put(callbackId, responseCallback);
+            mPersistentCallbacks.put(callbackId, responseCallback);
             request.callbackId = callbackId;
         }
         if (!TextUtils.isEmpty(handlerName)) {
@@ -234,14 +278,21 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
     public void destroy() {
         super.destroy();
         mCallbacks.clear();
+        mPersistentCallbacks.clear();
     }
 
     public static abstract class BaseJavascriptInterface {
 
         private Map<String, OnBridgeCallback> mCallbacks;
+        private Map<String, OnBridgeCallback> mPersistentCallbacks;
 
         public BaseJavascriptInterface(Map<String, OnBridgeCallback> callbacks) {
             mCallbacks = callbacks;
+        }
+
+        public BaseJavascriptInterface(Map<String, OnBridgeCallback> callbacks, Map<String, OnBridgeCallback> persistentCallbacks) {
+            mCallbacks = callbacks;
+            mPersistentCallbacks = persistentCallbacks;
         }
 
         @JavascriptInterface
@@ -254,9 +305,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge, B
         public void response(String data, String responseId) {
             Log.d("BaseJavascriptInterface", data + ", responseId: " + responseId + " " + Thread.currentThread().getName());
             if (!TextUtils.isEmpty(responseId)) {
-                OnBridgeCallback function = mCallbacks.remove(responseId);
+                OnBridgeCallback function = mCallbacks.get(responseId);
                 if (function != null) {
                     function.onCallBack(data);
+                    // Only remove if it's not a persistent callback
+                    if (mPersistentCallbacks == null || !mPersistentCallbacks.containsKey(responseId)) {
+                        mCallbacks.remove(responseId);
+                    }
                 }
             }
         }

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Persistent Callback Test</title>
+</head>
+<body>
+    <div id="test-results"></div>
+    
+    <script>
+        // Test script for persistent callback functionality
+        var testResults = [];
+        var persistentCallbackCount = 0;
+        var cachedCallback = null;
+
+        function logResult(message) {
+            testResults.push(message);
+            document.getElementById('test-results').innerHTML = testResults.join('<br>');
+            console.log(message);
+        }
+
+        function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge && WebViewJavascriptBridge.inited) {
+                callback(WebViewJavascriptBridge);
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady',
+                    function() {
+                        callback(WebViewJavascriptBridge);
+                    },
+                    false
+                );
+            }
+        }
+
+        connectWebViewJavascriptBridge(function(bridge) {
+            bridge.init(function(message, responseCallback) {
+                logResult('Bridge initialized');
+            });
+
+            // Test persistent callback functionality
+            bridge.registerHandler("testPersistentCallback", function(data, responseCallback) {
+                logResult('Handler called with data: ' + data);
+                
+                // Cache the callback for reuse
+                cachedCallback = responseCallback;
+                
+                // Respond immediately
+                if (responseCallback) {
+                    responseCallback("First response");
+                    logResult('Sent first response');
+                }
+            });
+
+            // Function to test reusing the cached callback
+            window.testReuseCachedCallback = function() {
+                if (cachedCallback) {
+                    try {
+                        cachedCallback("Reused callback response " + (++persistentCallbackCount));
+                        logResult('Successfully reused cached callback #' + persistentCallbackCount);
+                        return true;
+                    } catch (error) {
+                        logResult('Error reusing cached callback: ' + error.message);
+                        return false;
+                    }
+                } else {
+                    logResult('No cached callback available');
+                    return false;
+                }
+            };
+
+            // Test normal callback behavior
+            bridge.registerHandler("testNormalCallback", function(data, responseCallback) {
+                logResult('Normal handler called with data: ' + data);
+                if (responseCallback) {
+                    responseCallback("Normal response");
+                    logResult('Sent normal response');
+                }
+            });
+
+            logResult('Test handlers registered');
+        });
+
+        // Function to run all tests
+        window.runPersistentCallbackTests = function() {
+            logResult('Starting persistent callback tests...');
+            
+            // Test 1: Call handler and cache callback
+            WebViewJavascriptBridge.callHandler('testPersistentCallback', 'test data', function(response) {
+                logResult('Received response: ' + response);
+            });
+            
+            // Test 2: Try to reuse cached callback multiple times
+            setTimeout(function() {
+                for (var i = 0; i < 3; i++) {
+                    setTimeout(function() {
+                        testReuseCachedCallback();
+                    }, i * 100);
+                }
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <title>Persistent Callback Demo</title>
+</head>
+
+<body>
+<h2>Persistent Callback Demo</h2>
+<p>This demo shows how to use persistent callbacks that can be reused multiple times.</p>
+
+<div id="log" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin: 10px 0;"></div>
+
+<p>
+    <input type="button" id="testPersistent" value="Test Persistent Callback" onclick="testPersistentCallback();" />
+</p>
+<p>
+    <input type="button" id="reuseCached" value="Reuse Cached Callback" onclick="reuseCachedCallback();" />
+</p>
+<p>
+    <input type="button" id="testNormal" value="Test Normal Callback" onclick="testNormalCallback();" />
+</p>
+<p>
+    <input type="button" id="clearLog" value="Clear Log" onclick="clearLog();" />
+</p>
+
+<script>
+    var cachedCallback = null;
+    var callCount = 0;
+
+    function log(message) {
+        var logDiv = document.getElementById('log');
+        var timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += '[' + timestamp + '] ' + message + '<br>';
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+    }
+
+    function clearLog() {
+        document.getElementById('log').innerHTML = '';
+    }
+
+    function connectWebViewJavascriptBridge(callback) {
+        if (window.WebViewJavascriptBridge && WebViewJavascriptBridge.inited) {
+            callback(WebViewJavascriptBridge);
+        } else {
+            document.addEventListener(
+                'WebViewJavascriptBridgeReady',
+                function() {
+                    callback(WebViewJavascriptBridge);
+                },
+                false
+            );
+        }
+    }
+
+    connectWebViewJavascriptBridge(function(bridge) {
+        bridge.init(function(message, responseCallback) {
+            log('Bridge initialized');
+        });
+
+        // Register handler for persistent callback testing
+        bridge.registerHandler("persistentCallbackTest", function(data, responseCallback) {
+            log('Handler called with data: ' + data);
+            
+            // Cache the callback for reuse
+            cachedCallback = responseCallback;
+            
+            // Respond immediately
+            if (responseCallback) {
+                responseCallback("Initial response from handler");
+                log('Sent initial response');
+            }
+        });
+
+        log('Bridge ready and handlers registered');
+    });
+
+    function testPersistentCallback() {
+        log('Testing persistent callback...');
+        
+        // Use the new persistent callback method
+        WebViewJavascriptBridge.callHandlerPersistent('persistentCallbackTest', 'test data for persistent callback', function(response) {
+            callCount++;
+            log('Received response #' + callCount + ': ' + response);
+        });
+    }
+
+    function reuseCachedCallback() {
+        if (cachedCallback) {
+            try {
+                callCount++;
+                cachedCallback("Reused callback response #" + callCount);
+                log('Successfully reused cached callback #' + callCount);
+            } catch (error) {
+                log('Error reusing cached callback: ' + error.message);
+            }
+        } else {
+            log('No cached callback available. Call "Test Persistent Callback" first.');
+        }
+    }
+
+    function testNormalCallback() {
+        log('Testing normal callback...');
+        
+        // Use normal callback (should be deleted after first use)
+        WebViewJavascriptBridge.callHandler('persistentCallbackTest', 'test data for normal callback', function(response) {
+            log('Received normal callback response: ' + response);
+        });
+    }
+</script>
+
+</body>
+</html>
