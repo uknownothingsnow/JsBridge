@@ -2,13 +2,13 @@
 
 -----
 
-inspired and modified from [this](https://github.com/jacin1/JsBridge) and wechat jsBridge file, with some bugs fix and feature enhancement.
+Inspired and modified from [this](https://github.com/jacin1/JsBridge) and WeChat jsBridge file, with some bug fixes and feature enhancements.
 
-This project make a bridge between Java and JavaScript.
+This project makes a bridge between Java and JavaScript.
 
-It provides safe and convenient way to call Java code from js and call js code from java.
+It provides a safe and convenient way to call Java code from JavaScript and call JavaScript code from Java.
 
-## How JsBridge Work
+## How JsBridge Works
 ![JsBridge](./JsBridgeWork.png)
 
 ## Demo
@@ -18,7 +18,7 @@ It provides safe and convenient way to call Java code from js and call js code f
 
 ## JitPack.io
 
-I strongly recommend https://jitpack.io
+I strongly recommend [JitPack.io](https://jitpack.io)
 
 ```groovy
 repositories {
@@ -33,9 +33,9 @@ dependencies {
 
 ## Use it in Java
 
-add com.github.lzyzsd.jsbridge.BridgeWebView to your layout, it is inherited from WebView.
+Add `com.github.lzyzsd.jsbridge.BridgeWebView` to your layout, it is inherited from WebView.
 
-### Register a Java handler function so that js can call
+### Register a Java handler function so that JavaScript can call
 
 ```java
 
@@ -49,7 +49,7 @@ add com.github.lzyzsd.jsbridge.BridgeWebView to your layout, it is inherited fro
 
 ```
 
-js can call this Java handler method "submitFromWeb" through:
+JavaScript can call this Java handler method "submitFromWeb" through:
 
 ```javascript
 
@@ -63,7 +63,7 @@ js can call this Java handler method "submitFromWeb" through:
 
 ```
 
-You can set a default handler in Java, so that js can send message to Java without assigned handlerName
+You can set a default handler in Java, so that JavaScript can send messages to Java without an assigned handlerName
 
 ```java
 
@@ -76,7 +76,7 @@ You can set a default handler in Java, so that js can send message to Java witho
     window.WebViewJavascriptBridge.doSend(
         data
         , function(responseData) {
-            document.getElementById("show").innerHTML = "repsonseData from java, data = " + responseData
+            document.getElementById("show").innerHTML = "responseData from java, data = " + responseData
         }
     );
 
@@ -94,7 +94,7 @@ You can set a default handler in Java, so that js can send message to Java witho
 
 ```
 
-Java can call this js handler function "functionInJs" through:
+Java can call this JavaScript handler function "functionInJs" through:
 
 ```java
 
@@ -106,9 +106,9 @@ Java can call this js handler function "functionInJs" through:
     });
 
 ```
-You can also define a default handler use init method, so that Java can send message to js without assigned handlerName
+You can also define a default handler using the init method, so that Java can send messages to JavaScript without an assigned handlerName
 
-for example:
+For example:
 
 ```javascript
 
@@ -129,7 +129,7 @@ for example:
 
 will print 'JS got a message hello' and 'JS responding with' in webview console.
 
-### Switch to CustomWebview
+### Switch to CustomWebView
 * activity_main.xml
 ```xml
     <com.github.lzyzsd.jsbridge.example.CustomWebView
@@ -139,7 +139,7 @@ will print 'JS got a message hello' and 'JS responding with' in webview console.
      </com.github.lzyzsd.jsbridge.example.CustomWebView>
 ```
 * MainActivity.java
-Class BridgeWebview change to CustomWebview;
+Change BridgeWebView class to CustomWebView:
 ```java
     CustomWebView webView = (CustomWebView) findViewById(R.id.webView);
     
@@ -147,8 +147,8 @@ Class BridgeWebview change to CustomWebview;
 
 ## Notice
 
-This lib will inject a WebViewJavascriptBridge Object to window object.
-You can listen to `WebViewJavascriptBridgeReady` event to ensure `window.WebViewJavascriptBridge` is exist, as the blow code shows:
+This library will inject a WebViewJavascriptBridge Object to the window object.
+You can listen to the `WebViewJavascriptBridgeReady` event to ensure `window.WebViewJavascriptBridge` exists, as the below code shows:
 
 ```javascript
 
@@ -196,7 +196,7 @@ setupWebViewJavascriptBridge(function(bridge) {
 });
 ```
 
-It same with https://github.com/marcuswestin/WebViewJavascriptBridge, that would be easier for you to define same behavior in different platform between Android and iOS. Meanwhile, writing concise code.
+It's the same as [WebViewJavascriptBridge](https://github.com/marcuswestin/WebViewJavascriptBridge), which makes it easier for you to define the same behavior across different platforms between Android and iOS, while writing concise code.
 
 ## License
 
