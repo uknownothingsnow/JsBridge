@@ -11,6 +11,7 @@
     var sendMessageQueue = [];
 
     var responseCallbacks = {};
+    var persistentCallbacks = {};
     var uniqueId = 1;
 
     var lastCallTime = 0;
@@ -63,24 +64,48 @@
         delete messageHandlers[handlerName];
     }
 
+    // Register a persistent callback that won't be deleted after first use
+    function registerPersistentCallback(callbackId, callback) {
+        persistentCallbacks[callbackId] = callback;
+        responseCallbacks[callbackId] = callback;
+    }
+
+    // Remove a persistent callback
+    function removePersistentCallback(callbackId) {
+        delete persistentCallbacks[callbackId];
+        delete responseCallbacks[callbackId];
+    }
+
     // 调用线程
-    function callHandler(handlerName, data, responseCallback) {
+    function callHandler(handlerName, data, responseCallback, persistent) {
         // 如果方法不需要参数，只有回调函数，简化JS中的调用
         if (arguments.length == 2 && typeof data == 'function') {
 			responseCallback = data;
 			data = null;
 		}
-        _doSend(handlerName, data, responseCallback);
+        _doSend(handlerName, data, responseCallback, persistent);
+    }
+
+    // Call handler with persistent callback that can be reused
+    function callHandlerPersistent(handlerName, data, responseCallback) {
+        if (arguments.length == 2 && typeof data == 'function') {
+			responseCallback = data;
+			data = null;
+		}
+        _doSend(handlerName, data, responseCallback, true);
     }
 
     //sendMessage add message, 触发native处理 sendMessage
-    function _doSend(handlerName, message, responseCallback) {
+    function _doSend(handlerName, message, responseCallback, persistent) {
         var callbackId;
         if(typeof responseCallback === 'string'){
             callbackId = responseCallback;
         } else if (responseCallback) {
             callbackId = 'cb_' + (uniqueId++) + '_' + new Date().getTime();
             responseCallbacks[callbackId] = responseCallback;
+            if (persistent) {
+                persistentCallbacks[callbackId] = responseCallback;
+            }
             message.callbackId = callbackId;
         }else{
             callbackId = '';
@@ -98,7 +123,10 @@
                      return;
                   }
                  responseCallback(responseData);
-                 delete responseCallbacks[callbackId];
+                 // Only delete if it's not a persistent callback
+                 if (!persistentCallbacks[callbackId]) {
+                     delete responseCallbacks[callbackId];
+                 }
              }
          }
 
@@ -141,7 +169,10 @@
                     return;
                 }
                 responseCallback(message.responseData);
-                delete responseCallbacks[message.responseId];
+                // Only delete if it's not a persistent callback
+                if (!persistentCallbacks[message.responseId]) {
+                    delete responseCallbacks[message.responseId];
+                }
             } else {
                 //直接发送
                 if (message.callbackId) {
@@ -179,7 +210,11 @@
     WebViewJavascriptBridge.init = init;
     WebViewJavascriptBridge.doSend = send;
     WebViewJavascriptBridge.registerHandler = registerHandler;
+    WebViewJavascriptBridge.removeHandler = removeHandler;
     WebViewJavascriptBridge.callHandler = callHandler;
+    WebViewJavascriptBridge.callHandlerPersistent = callHandlerPersistent;
+    WebViewJavascriptBridge.registerPersistentCallback = registerPersistentCallback;
+    WebViewJavascriptBridge.removePersistentCallback = removePersistentCallback;
     WebViewJavascriptBridge._handleMessageFromNative = _handleMessageFromNative;
     WebViewJavascriptBridge._fetchQueue = _fetchQueue;
 

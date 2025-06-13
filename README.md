@@ -129,6 +129,44 @@ For example:
 
 will print 'JS got a message hello' and 'JS responding with' in webview console.
 
+### Persistent Callbacks (New Feature)
+
+By default, callbacks are deleted after first use. However, you can now use persistent callbacks that can be reused multiple times:
+
+#### Java Side
+
+```java
+// Use persistent callback that won't be deleted after first use
+webView.callHandlerPersistent("functionInJs", data, new OnBridgeCallback() {
+    @Override
+    public void onCallBack(String data) {
+        // This callback can be called multiple times
+        Log.d(TAG, "Persistent callback called: " + data);
+    }
+});
+```
+
+#### JavaScript Side
+
+```javascript
+// Use persistent callback
+WebViewJavascriptBridge.callHandlerPersistent("javaHandler", data, function(response) {
+    // This callback can be reused multiple times
+    console.log("Persistent callback response: " + response);
+});
+
+// Register and manually manage persistent callbacks
+var callbackId = "my_persistent_callback";
+WebViewJavascriptBridge.registerPersistentCallback(callbackId, function(data) {
+    console.log("Persistent callback called: " + data);
+});
+
+// Remove persistent callback when no longer needed
+WebViewJavascriptBridge.removePersistentCallback(callbackId);
+```
+
+This feature is useful when you need to maintain a long-term communication channel between Java and JavaScript, such as for real-time updates or event notifications.
+
 ### Switch to CustomWebView
 * activity_main.xml
 ```xml
